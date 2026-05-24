@@ -1,0 +1,2456 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>KAMAL1 — Premium Gaming & Web Services</title>
+<meta name="description" content="Kamal1.com.np — Premium 3D browser games, professional web development, and digital agency services. Play. Build. Dominate.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@300;400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --neon-cyan: #00f5ff;
+  --neon-purple: #bf00ff;
+  --neon-green: #39ff14;
+  --neon-orange: #ff6b00;
+  --dark-bg: #030711;
+  --dark-card: #0a0f1e;
+  --dark-surface: #0d1526;
+  --glass: rgba(0,245,255,0.05);
+  --glass-border: rgba(0,245,255,0.15);
+  --text-primary: #e8f4ff;
+  --text-muted: #6b8599;
+  --font-display: 'Orbitron', monospace;
+  --font-body: 'Rajdhani', sans-serif;
+  --font-mono: 'Space Mono', monospace;
+  --glow-cyan: 0 0 20px rgba(0,245,255,0.5), 0 0 60px rgba(0,245,255,0.2);
+  --glow-purple: 0 0 20px rgba(191,0,255,0.5), 0 0 60px rgba(191,0,255,0.2);
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: var(--font-body);
+  background: var(--dark-bg);
+  color: var(--text-primary);
+  overflow-x: hidden;
+  cursor: none;
+}
+
+/* CUSTOM CURSOR */
+#cursor {
+  width: 12px; height: 12px;
+  background: var(--neon-cyan);
+  border-radius: 50%;
+  position: fixed; top: 0; left: 0;
+  pointer-events: none; z-index: 99999;
+  transition: transform 0.1s, opacity 0.2s;
+  box-shadow: var(--glow-cyan);
+  transform: translate(-50%, -50%);
+}
+#cursor-ring {
+  width: 36px; height: 36px;
+  border: 1px solid rgba(0,245,255,0.5);
+  border-radius: 50%;
+  position: fixed; top: 0; left: 0;
+  pointer-events: none; z-index: 99998;
+  transition: transform 0.15s ease, width 0.2s, height 0.2s;
+  transform: translate(-50%, -50%);
+}
+body:has(a:hover) #cursor-ring,
+body:has(button:hover) #cursor-ring { width: 56px; height: 56px; border-color: var(--neon-purple); }
+
+/* LOADING SCREEN */
+#loading-screen {
+  position: fixed; inset: 0;
+  background: var(--dark-bg);
+  z-index: 9999;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  transition: opacity 0.5s ease, visibility 0.5s;
+}
+#loading-screen.hidden { opacity: 0; visibility: hidden; pointer-events: none; }
+.loading-logo {
+  font-family: var(--font-display);
+  font-size: clamp(2rem, 6vw, 4rem);
+  font-weight: 900;
+  background: linear-gradient(135deg, var(--neon-cyan), var(--neon-purple));
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  background-clip: text;
+  letter-spacing: 0.2em;
+  animation: pulse-glow 1.5s ease-in-out infinite;
+}
+.loading-bar-wrap {
+  width: 300px; height: 3px;
+  background: rgba(255,255,255,0.05);
+  border-radius: 999px;
+  margin-top: 2rem; overflow: hidden;
+}
+.loading-bar {
+  height: 100%;
+  background: linear-gradient(90deg, var(--neon-cyan), var(--neon-purple));
+  border-radius: 999px;
+  animation: loading-fill 2s ease-out forwards;
+}
+.loading-text {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  color: var(--neon-cyan);
+  margin-top: 1rem;
+  letter-spacing: 0.3em;
+  animation: blink 1s infinite;
+}
+@keyframes loading-fill { from { width: 0 } to { width: 100% } }
+@keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.3} }
+@keyframes pulse-glow {
+  0%,100% { filter: drop-shadow(0 0 10px rgba(0,245,255,0.8)); }
+  50% { filter: drop-shadow(0 0 30px rgba(191,0,255,0.8)); }
+}
+
+/* PARTICLES CANVAS */
+#particles-canvas {
+  position: fixed; inset: 0;
+  z-index: 0; pointer-events: none;
+}
+
+/* AUTH OVERLAY */
+#auth-overlay {
+  position: fixed; inset: 0;
+  background: rgba(3,7,17,0.97);
+  backdrop-filter: blur(20px);
+  z-index: 1000;
+  display: flex; align-items: center; justify-content: center;
+  transition: opacity 0.4s, visibility 0.4s;
+}
+#auth-overlay.hidden { opacity: 0; visibility: hidden; pointer-events: none; }
+
+.auth-box {
+  background: var(--dark-card);
+  border: 1px solid var(--glass-border);
+  border-radius: 24px;
+  padding: 3rem;
+  width: min(480px, 90vw);
+  box-shadow: 0 0 60px rgba(0,245,255,0.1), 0 0 120px rgba(191,0,255,0.05);
+  position: relative;
+  overflow: hidden;
+}
+.auth-box::before {
+  content: '';
+  position: absolute; top: 0; left: 0; right: 0; height: 2px;
+  background: linear-gradient(90deg, var(--neon-purple), var(--neon-cyan), var(--neon-purple));
+  animation: border-scan 3s linear infinite;
+}
+@keyframes border-scan {
+  0% { background-position: -200% 0 }
+  100% { background-position: 200% 0 }
+}
+.auth-logo {
+  text-align: center; margin-bottom: 2rem;
+}
+.auth-logo .logo-text {
+  font-family: var(--font-display);
+  font-size: 2rem; font-weight: 900;
+  background: linear-gradient(135deg, var(--neon-cyan), var(--neon-purple));
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+  letter-spacing: 0.2em;
+}
+.auth-logo .logo-sub {
+  font-size: 0.75rem; color: var(--text-muted);
+  letter-spacing: 0.3em; text-transform: uppercase;
+  font-family: var(--font-mono);
+}
+.auth-tabs { display: flex; gap: 0; margin-bottom: 2rem; border-radius: 12px; overflow: hidden; background: rgba(255,255,255,0.03); }
+.auth-tab {
+  flex: 1; padding: 0.75rem;
+  font-family: var(--font-display); font-size: 0.8rem; letter-spacing: 0.1em;
+  background: none; border: none; color: var(--text-muted);
+  cursor: pointer; transition: all 0.3s;
+}
+.auth-tab.active {
+  background: linear-gradient(135deg, rgba(0,245,255,0.15), rgba(191,0,255,0.15));
+  color: var(--neon-cyan); font-weight: 700;
+}
+.auth-form { display: flex; flex-direction: column; gap: 1rem; }
+.auth-form.hidden { display: none; }
+.form-group { position: relative; }
+.form-group label {
+  font-size: 0.75rem; letter-spacing: 0.2em; text-transform: uppercase;
+  color: var(--text-muted); display: block; margin-bottom: 0.4rem;
+  font-family: var(--font-mono);
+}
+.form-group input {
+  width: 100%; padding: 0.85rem 1rem;
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 10px;
+  color: var(--text-primary);
+  font-family: var(--font-body); font-size: 1rem;
+  outline: none; transition: all 0.3s;
+}
+.form-group input:focus {
+  border-color: var(--neon-cyan);
+  box-shadow: 0 0 0 3px rgba(0,245,255,0.08), var(--glow-cyan);
+  background: rgba(0,245,255,0.03);
+}
+.btn-primary {
+  padding: 1rem; border: none; border-radius: 12px;
+  background: linear-gradient(135deg, var(--neon-cyan), var(--neon-purple));
+  color: var(--dark-bg); font-family: var(--font-display);
+  font-size: 0.85rem; font-weight: 700; letter-spacing: 0.1em;
+  cursor: pointer; transition: all 0.3s;
+  position: relative; overflow: hidden;
+}
+.btn-primary:hover { transform: translateY(-2px); box-shadow: var(--glow-cyan); }
+.btn-primary:active { transform: translateY(0); }
+.btn-google {
+  padding: 0.85rem; border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 12px; background: rgba(255,255,255,0.03);
+  color: var(--text-primary); font-family: var(--font-body); font-size: 0.95rem;
+  cursor: pointer; transition: all 0.3s; display: flex; align-items: center;
+  justify-content: center; gap: 0.75rem;
+}
+.btn-google:hover { border-color: var(--neon-cyan); background: rgba(0,245,255,0.05); }
+.auth-divider {
+  display: flex; align-items: center; gap: 1rem;
+  font-family: var(--font-mono); font-size: 0.7rem; color: var(--text-muted);
+}
+.auth-divider::before, .auth-divider::after {
+  content: ''; flex: 1; height: 1px; background: rgba(255,255,255,0.08);
+}
+.auth-extras {
+  display: flex; justify-content: space-between; align-items: center;
+  font-size: 0.85rem;
+}
+.auth-extras label { display: flex; align-items: center; gap: 0.5rem; cursor: pointer; color: var(--text-muted); }
+.auth-extras a { color: var(--neon-cyan); text-decoration: none; font-size: 0.85rem; }
+.auth-extras a:hover { text-shadow: var(--glow-cyan); }
+.auth-error {
+  background: rgba(255,50,50,0.1); border: 1px solid rgba(255,50,50,0.3);
+  border-radius: 8px; padding: 0.75rem; font-size: 0.85rem; color: #ff6b6b;
+  display: none;
+}
+.auth-error.show { display: block; }
+
+/* MAIN SITE */
+#main-site { position: relative; z-index: 1; }
+
+/* NAVBAR */
+nav {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 500;
+  padding: 1rem 2rem;
+  display: flex; align-items: center; justify-content: space-between;
+  transition: all 0.3s;
+}
+nav.scrolled {
+  background: rgba(3,7,17,0.92);
+  backdrop-filter: blur(20px);
+  border-bottom: 1px solid rgba(0,245,255,0.1);
+}
+.nav-logo {
+  font-family: var(--font-display); font-size: 1.4rem; font-weight: 900;
+  background: linear-gradient(135deg, var(--neon-cyan), var(--neon-purple));
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+  letter-spacing: 0.2em; text-decoration: none;
+}
+.nav-links {
+  display: flex; gap: 2rem; list-style: none;
+}
+.nav-links a {
+  color: var(--text-muted); text-decoration: none;
+  font-family: var(--font-body); font-size: 0.9rem; letter-spacing: 0.1em;
+  text-transform: uppercase; transition: all 0.3s; position: relative;
+}
+.nav-links a::after {
+  content: ''; position: absolute; bottom: -4px; left: 0; width: 0; height: 1px;
+  background: var(--neon-cyan); transition: width 0.3s;
+}
+.nav-links a:hover { color: var(--neon-cyan); }
+.nav-links a:hover::after { width: 100%; }
+.nav-right { display: flex; align-items: center; gap: 1rem; }
+.nav-user {
+  display: flex; align-items: center; gap: 0.75rem;
+  background: var(--glass); border: 1px solid var(--glass-border);
+  border-radius: 999px; padding: 0.4rem 1rem 0.4rem 0.4rem;
+  font-size: 0.85rem;
+}
+.nav-avatar {
+  width: 32px; height: 32px; border-radius: 50%;
+  background: linear-gradient(135deg, var(--neon-cyan), var(--neon-purple));
+  display: flex; align-items: center; justify-content: center;
+  font-family: var(--font-display); font-size: 0.7rem; font-weight: 700; color: var(--dark-bg);
+}
+.btn-logout {
+  background: rgba(255,50,50,0.1); border: 1px solid rgba(255,50,50,0.3);
+  color: #ff6b6b; padding: 0.4rem 1rem; border-radius: 999px;
+  font-family: var(--font-body); font-size: 0.8rem; cursor: pointer; transition: all 0.3s;
+}
+.btn-logout:hover { background: rgba(255,50,50,0.2); }
+.theme-toggle {
+  width: 40px; height: 40px; border-radius: 50%;
+  border: 1px solid var(--glass-border); background: var(--glass);
+  cursor: pointer; display: flex; align-items: center; justify-content: center;
+  font-size: 1.1rem; transition: all 0.3s;
+}
+.theme-toggle:hover { border-color: var(--neon-cyan); box-shadow: var(--glow-cyan); }
+.hamburger { display: none; flex-direction: column; gap: 5px; cursor: pointer; padding: 5px; }
+.hamburger span { width: 24px; height: 2px; background: var(--neon-cyan); border-radius: 2px; transition: all 0.3s; }
+.mobile-menu {
+  display: none; position: fixed; top: 70px; left: 0; right: 0;
+  background: rgba(3,7,17,0.97); backdrop-filter: blur(20px);
+  border-bottom: 1px solid var(--glass-border);
+  padding: 2rem; flex-direction: column; gap: 1.5rem;
+  z-index: 499;
+}
+.mobile-menu.open { display: flex; }
+.mobile-menu a {
+  color: var(--text-primary); text-decoration: none;
+  font-family: var(--font-display); font-size: 1rem; letter-spacing: 0.1em;
+  padding: 0.75rem 0; border-bottom: 1px solid rgba(255,255,255,0.05);
+}
+
+/* SECTIONS */
+section { position: relative; z-index: 1; }
+
+/* HERO */
+.hero {
+  min-height: 100vh;
+  display: flex; align-items: center; justify-content: center;
+  text-align: center; padding: 8rem 2rem 4rem;
+  position: relative; overflow: hidden;
+}
+.hero-bg {
+  position: absolute; inset: 0;
+  background: radial-gradient(ellipse 80% 80% at 50% -20%, rgba(0,245,255,0.08) 0%, transparent 70%),
+              radial-gradient(ellipse 60% 60% at 80% 80%, rgba(191,0,255,0.06) 0%, transparent 60%);
+}
+.hero-grid {
+  position: absolute; inset: 0;
+  background-image: linear-gradient(rgba(0,245,255,0.03) 1px, transparent 1px),
+                    linear-gradient(90deg, rgba(0,245,255,0.03) 1px, transparent 1px);
+  background-size: 60px 60px;
+  mask-image: radial-gradient(ellipse 80% 80% at 50% 50%, black 40%, transparent 100%);
+  animation: grid-move 20s linear infinite;
+}
+@keyframes grid-move { from { background-position: 0 0 } to { background-position: 60px 60px } }
+.hero-badge {
+  display: inline-flex; align-items: center; gap: 0.5rem;
+  background: rgba(0,245,255,0.08); border: 1px solid rgba(0,245,255,0.2);
+  border-radius: 999px; padding: 0.5rem 1.25rem;
+  font-family: var(--font-mono); font-size: 0.75rem; color: var(--neon-cyan);
+  letter-spacing: 0.2em; margin-bottom: 2rem;
+  animation: fadeInDown 0.8s ease both;
+}
+.badge-dot { width: 6px; height: 6px; background: var(--neon-green); border-radius: 50%; animation: blink 1.5s infinite; }
+.hero-title {
+  font-family: var(--font-display);
+  font-size: clamp(3rem, 8vw, 7rem);
+  font-weight: 900; line-height: 1;
+  letter-spacing: -0.02em;
+  margin-bottom: 1.5rem;
+  animation: fadeInUp 0.8s 0.2s ease both;
+}
+.hero-title .line1 { display: block; color: var(--text-primary); }
+.hero-title .line2 {
+  display: block;
+  background: linear-gradient(135deg, var(--neon-cyan) 0%, var(--neon-purple) 50%, var(--neon-orange) 100%);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+  background-size: 200% auto; animation: gradient-shift 4s ease infinite;
+}
+@keyframes gradient-shift { 0%,100%{background-position:0%} 50%{background-position:100%} }
+.hero-sub {
+  font-size: clamp(1rem, 2.5vw, 1.3rem); color: var(--text-muted);
+  max-width: 600px; margin: 0 auto 3rem; line-height: 1.6;
+  animation: fadeInUp 0.8s 0.4s ease both;
+}
+.hero-cta {
+  display: flex; flex-wrap: wrap; gap: 1rem; justify-content: center;
+  animation: fadeInUp 0.8s 0.6s ease both;
+}
+.cta-primary {
+  padding: 1rem 2.5rem; border: none; border-radius: 12px;
+  background: linear-gradient(135deg, var(--neon-cyan), var(--neon-purple));
+  color: var(--dark-bg); font-family: var(--font-display); font-size: 0.9rem;
+  font-weight: 700; letter-spacing: 0.1em; cursor: pointer; transition: all 0.3s;
+  text-decoration: none; display: inline-flex; align-items: center; gap: 0.5rem;
+}
+.cta-primary:hover { transform: translateY(-3px); box-shadow: 0 20px 40px rgba(0,245,255,0.3); }
+.cta-secondary {
+  padding: 1rem 2.5rem; border: 1px solid var(--glass-border);
+  border-radius: 12px; background: var(--glass);
+  color: var(--text-primary); font-family: var(--font-display); font-size: 0.9rem;
+  letter-spacing: 0.1em; cursor: pointer; transition: all 0.3s;
+  text-decoration: none; display: inline-flex; align-items: center; gap: 0.5rem;
+  backdrop-filter: blur(10px);
+}
+.cta-secondary:hover { border-color: var(--neon-purple); color: var(--neon-purple); transform: translateY(-3px); }
+.hero-stats {
+  display: flex; flex-wrap: wrap; gap: 3rem; justify-content: center;
+  margin-top: 5rem; animation: fadeInUp 0.8s 0.8s ease both;
+}
+.hero-stat .num {
+  font-family: var(--font-display); font-size: 2rem; font-weight: 900;
+  background: linear-gradient(135deg, var(--neon-cyan), var(--neon-purple));
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+}
+.hero-stat .label { font-size: 0.8rem; color: var(--text-muted); letter-spacing: 0.2em; text-transform: uppercase; margin-top: 0.25rem; }
+@keyframes fadeInDown { from { opacity:0; transform: translateY(-20px) } to { opacity:1; transform: translateY(0) } }
+@keyframes fadeInUp { from { opacity:0; transform: translateY(30px) } to { opacity:1; transform: translateY(0) } }
+
+/* SECTION COMMON */
+.section-inner { max-width: 1200px; margin: 0 auto; padding: 6rem 2rem; }
+.section-header { text-align: center; margin-bottom: 4rem; }
+.section-label {
+  font-family: var(--font-mono); font-size: 0.75rem; letter-spacing: 0.3em;
+  text-transform: uppercase; color: var(--neon-cyan); margin-bottom: 1rem;
+  display: inline-flex; align-items: center; gap: 0.75rem;
+}
+.section-label::before, .section-label::after {
+  content: ''; width: 40px; height: 1px; background: linear-gradient(90deg, transparent, var(--neon-cyan));
+}
+.section-label::after { background: linear-gradient(90deg, var(--neon-cyan), transparent); }
+.section-title {
+  font-family: var(--font-display); font-size: clamp(1.8rem, 4vw, 3rem);
+  font-weight: 900; line-height: 1.1; margin-bottom: 1rem;
+}
+.section-title span {
+  background: linear-gradient(135deg, var(--neon-cyan), var(--neon-purple));
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+}
+.section-desc { color: var(--text-muted); font-size: 1.05rem; max-width: 500px; margin: 0 auto; line-height: 1.6; }
+
+/* GAMES SECTION */
+.games-grid {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 1.5rem;
+}
+.game-card {
+  background: var(--dark-card); border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 20px; overflow: hidden; position: relative;
+  transition: all 0.4s cubic-bezier(0.34,1.56,0.64,1);
+  cursor: pointer;
+}
+.game-card:hover { transform: translateY(-8px) scale(1.02); border-color: var(--neon-cyan); box-shadow: var(--glow-cyan); }
+.game-thumb {
+  height: 200px; position: relative; overflow: hidden;
+}
+.game-thumb-bg {
+  width: 100%; height: 100%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 5rem;
+  position: relative;
+}
+.game-card:nth-child(1) .game-thumb-bg { background: linear-gradient(135deg, #1a0533, #2d0a4e, #1a0a2e); }
+.game-card:nth-child(2) .game-thumb-bg { background: linear-gradient(135deg, #0a2010, #1a4020, #0a1a0a); }
+.game-card:nth-child(3) .game-thumb-bg { background: linear-gradient(135deg, #2d0a00, #4e1500, #2d0a00); }
+.game-card:nth-child(4) .game-thumb-bg { background: linear-gradient(135deg, #001a2d, #003350, #001a2d); }
+.game-card:nth-child(5) .game-thumb-bg { background: linear-gradient(135deg, #1a1a00, #2d2d00, #1a1a00); }
+.game-thumb-overlay {
+  position: absolute; inset: 0;
+  background: linear-gradient(to bottom, transparent 40%, var(--dark-card));
+}
+.game-play-btn {
+  position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%) scale(0);
+  width: 60px; height: 60px; border-radius: 50%;
+  background: linear-gradient(135deg, var(--neon-cyan), var(--neon-purple));
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.2rem; transition: all 0.3s; box-shadow: var(--glow-cyan);
+}
+.game-card:hover .game-play-btn { transform: translate(-50%, -50%) scale(1); }
+.game-badge {
+  position: absolute; top: 12px; right: 12px;
+  background: var(--neon-green); color: var(--dark-bg);
+  font-family: var(--font-mono); font-size: 0.65rem; padding: 0.25rem 0.6rem;
+  border-radius: 999px; font-weight: 700; letter-spacing: 0.1em;
+}
+.game-info { padding: 1.25rem; }
+.game-title { font-family: var(--font-display); font-size: 1rem; font-weight: 700; margin-bottom: 0.5rem; }
+.game-meta { display: flex; align-items: center; justify-content: space-between; }
+.game-genre { font-size: 0.8rem; color: var(--text-muted); letter-spacing: 0.1em; }
+.stars { color: #ffd700; font-size: 0.85rem; letter-spacing: 0.1em; }
+.game-actions { display: flex; gap: 0.75rem; margin-top: 1rem; }
+.btn-play {
+  flex: 1; padding: 0.65rem; border: none; border-radius: 10px;
+  background: linear-gradient(135deg, var(--neon-cyan), var(--neon-purple));
+  color: var(--dark-bg); font-family: var(--font-display); font-size: 0.75rem;
+  font-weight: 700; letter-spacing: 0.1em; cursor: pointer; transition: all 0.3s;
+}
+.btn-play:hover { transform: scale(1.02); box-shadow: var(--glow-cyan); }
+.btn-fullscreen {
+  width: 40px; border: 1px solid var(--glass-border); border-radius: 10px;
+  background: var(--glass); color: var(--text-muted); cursor: pointer;
+  transition: all 0.3s; font-size: 0.9rem; display: flex; align-items: center; justify-content: center;
+}
+.btn-fullscreen:hover { border-color: var(--neon-cyan); color: var(--neon-cyan); }
+
+/* GAME MODAL */
+#game-modal {
+  position: fixed; inset: 0; z-index: 2000;
+  background: rgba(3,7,17,0.98); backdrop-filter: blur(20px);
+  display: flex; flex-direction: column;
+  opacity: 0; visibility: hidden; transition: all 0.3s;
+}
+#game-modal.open { opacity: 1; visibility: visible; }
+.game-modal-header {
+  padding: 1rem 2rem; display: flex; align-items: center; justify-content: space-between;
+  border-bottom: 1px solid var(--glass-border);
+}
+.game-modal-title { font-family: var(--font-display); font-size: 1rem; color: var(--neon-cyan); }
+.game-modal-close {
+  width: 40px; height: 40px; border-radius: 50%;
+  border: 1px solid rgba(255,50,50,0.3); background: rgba(255,50,50,0.1);
+  color: #ff6b6b; cursor: pointer; font-size: 1.2rem;
+  display: flex; align-items: center; justify-content: center; transition: all 0.3s;
+}
+.game-modal-close:hover { background: rgba(255,50,50,0.2); }
+#game-canvas-wrap { flex: 1; position: relative; }
+#game-canvas { width: 100%; height: 100%; display: block; }
+
+/* SERVICES */
+.services-grid {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 1.5rem;
+}
+.service-card {
+  background: var(--dark-card); border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 20px; padding: 2rem; position: relative; overflow: hidden;
+  transition: all 0.4s; cursor: default;
+}
+.service-card::before {
+  content: ''; position: absolute; inset: 0; opacity: 0;
+  background: radial-gradient(ellipse at 50% 0%, rgba(0,245,255,0.08), transparent 70%);
+  transition: opacity 0.3s;
+}
+.service-card:hover::before { opacity: 1; }
+.service-card:hover { border-color: rgba(0,245,255,0.2); transform: translateY(-4px); }
+.service-icon {
+  font-size: 2.5rem; margin-bottom: 1.25rem;
+  display: inline-flex; width: 60px; height: 60px;
+  background: linear-gradient(135deg, rgba(0,245,255,0.1), rgba(191,0,255,0.1));
+  border: 1px solid var(--glass-border); border-radius: 16px;
+  align-items: center; justify-content: center;
+}
+.service-title { font-family: var(--font-display); font-size: 1rem; margin-bottom: 0.75rem; }
+.service-desc { font-size: 0.9rem; color: var(--text-muted); line-height: 1.6; margin-bottom: 1rem; }
+.service-tag {
+  display: inline-block; font-family: var(--font-mono); font-size: 0.65rem;
+  letter-spacing: 0.15em; color: var(--neon-cyan); background: rgba(0,245,255,0.08);
+  border: 1px solid rgba(0,245,255,0.2); border-radius: 999px; padding: 0.2rem 0.6rem;
+}
+
+/* PORTFOLIO */
+.portfolio-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 1.5rem; }
+.portfolio-card {
+  border-radius: 20px; overflow: hidden; position: relative;
+  border: 1px solid rgba(255,255,255,0.06); background: var(--dark-card);
+  transition: all 0.4s;
+}
+.portfolio-card:hover { transform: scale(1.02); border-color: var(--neon-purple); box-shadow: var(--glow-purple); }
+.portfolio-preview {
+  height: 200px; display: flex; align-items: center; justify-content: center;
+  font-size: 4rem; position: relative;
+}
+.portfolio-card:nth-child(1) .portfolio-preview { background: linear-gradient(135deg, #0d1a33, #162040); }
+.portfolio-card:nth-child(2) .portfolio-preview { background: linear-gradient(135deg, #1a0d33, #201640); }
+.portfolio-card:nth-child(3) .portfolio-preview { background: linear-gradient(135deg, #0d331a, #164020); }
+.portfolio-card:nth-child(4) .portfolio-preview { background: linear-gradient(135deg, #33200d, #402816). }
+.portfolio-overlay {
+  position: absolute; inset: 0;
+  background: rgba(3,7,17,0.85); backdrop-filter: blur(4px);
+  display: flex; align-items: center; justify-content: center;
+  opacity: 0; transition: opacity 0.3s;
+}
+.portfolio-card:hover .portfolio-overlay { opacity: 1; }
+.btn-view {
+  padding: 0.75rem 1.5rem; border: 1px solid var(--neon-cyan); border-radius: 999px;
+  background: rgba(0,245,255,0.1); color: var(--neon-cyan);
+  font-family: var(--font-display); font-size: 0.8rem; letter-spacing: 0.1em; cursor: pointer;
+  transition: all 0.3s;
+}
+.btn-view:hover { background: rgba(0,245,255,0.2); box-shadow: var(--glow-cyan); }
+.portfolio-info { padding: 1.25rem; }
+.portfolio-title { font-family: var(--font-display); font-size: 1rem; margin-bottom: 0.4rem; }
+.portfolio-cat { font-size: 0.8rem; color: var(--text-muted); }
+
+/* FEATURES */
+.features-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 1.25rem; }
+.feature-item {
+  background: var(--dark-card); border: 1px solid rgba(255,255,255,0.05);
+  border-radius: 16px; padding: 1.5rem; text-align: center;
+  transition: all 0.3s;
+}
+.feature-item:hover { border-color: rgba(0,245,255,0.2); transform: translateY(-4px); }
+.feature-icon { font-size: 2rem; margin-bottom: 0.75rem; }
+.feature-name { font-family: var(--font-display); font-size: 0.85rem; color: var(--text-primary); }
+
+/* PRICING */
+.pricing-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem; max-width: 900px; margin: 0 auto; }
+.pricing-card {
+  background: var(--dark-card); border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 24px; padding: 2.5rem; position: relative; overflow: hidden;
+  transition: all 0.4s;
+}
+.pricing-card.featured {
+  border-color: var(--neon-cyan);
+  box-shadow: var(--glow-cyan);
+}
+.pricing-card.featured::after {
+  content: 'MOST POPULAR';
+  position: absolute; top: 1.5rem; right: -2rem;
+  background: linear-gradient(135deg, var(--neon-cyan), var(--neon-purple));
+  color: var(--dark-bg); font-family: var(--font-display); font-size: 0.6rem;
+  font-weight: 700; letter-spacing: 0.15em; padding: 0.3rem 3rem;
+  transform: rotate(45deg); transform-origin: right;
+}
+.pricing-card:hover:not(.featured) { border-color: rgba(191,0,255,0.3); transform: translateY(-4px); }
+.pricing-tier { font-family: var(--font-mono); font-size: 0.75rem; color: var(--neon-cyan); letter-spacing: 0.3em; text-transform: uppercase; margin-bottom: 1rem; }
+.pricing-price { font-family: var(--font-display); font-size: 3rem; font-weight: 900; margin-bottom: 0.25rem; }
+.pricing-price span { font-size: 1rem; color: var(--text-muted); }
+.pricing-desc { font-size: 0.9rem; color: var(--text-muted); margin-bottom: 1.5rem; }
+.pricing-features { list-style: none; margin-bottom: 2rem; display: flex; flex-direction: column; gap: 0.75rem; }
+.pricing-features li { font-size: 0.9rem; display: flex; align-items: center; gap: 0.75rem; }
+.pricing-features li::before { content: '✓'; color: var(--neon-green); font-weight: 700; }
+
+/* TESTIMONIALS */
+.testimonials-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1.5rem; }
+.testimonial-card {
+  background: var(--dark-card); border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 20px; padding: 2rem; transition: all 0.3s;
+}
+.testimonial-card:hover { border-color: rgba(191,0,255,0.2); transform: translateY(-4px); }
+.testimonial-quote { font-size: 2rem; color: var(--neon-purple); margin-bottom: 1rem; }
+.testimonial-text { font-size: 0.95rem; color: var(--text-muted); line-height: 1.7; margin-bottom: 1.5rem; }
+.testimonial-user { display: flex; align-items: center; gap: 1rem; }
+.testimonial-avatar {
+  width: 44px; height: 44px; border-radius: 50%;
+  background: linear-gradient(135deg, var(--neon-purple), var(--neon-cyan));
+  display: flex; align-items: center; justify-content: center;
+  font-family: var(--font-display); font-size: 0.9rem; font-weight: 700; color: var(--dark-bg);
+}
+.testimonial-name { font-family: var(--font-display); font-size: 0.9rem; }
+.testimonial-role { font-size: 0.75rem; color: var(--text-muted); }
+
+/* CONTACT */
+.contact-wrap { display: grid; grid-template-columns: 1fr 1fr; gap: 3rem; }
+.contact-info { display: flex; flex-direction: column; gap: 1.5rem; }
+.contact-card {
+  background: var(--dark-card); border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 16px; padding: 1.5rem;
+  display: flex; align-items: center; gap: 1.25rem; transition: all 0.3s;
+}
+.contact-card:hover { border-color: var(--neon-cyan); box-shadow: var(--glow-cyan); }
+.contact-card-icon { font-size: 1.75rem; }
+.contact-card-label { font-family: var(--font-mono); font-size: 0.7rem; color: var(--text-muted); letter-spacing: 0.2em; text-transform: uppercase; margin-bottom: 0.25rem; }
+.contact-card-value { font-size: 0.95rem; color: var(--text-primary); }
+.contact-card-value a { color: inherit; text-decoration: none; }
+.contact-card-value a:hover { color: var(--neon-cyan); }
+.contact-form-wrap {
+  background: var(--dark-card); border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 20px; padding: 2rem;
+}
+.contact-form { display: flex; flex-direction: column; gap: 1rem; }
+.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+textarea {
+  width: 100%; padding: 0.85rem 1rem; height: 120px; resize: vertical;
+  background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 10px; color: var(--text-primary); font-family: var(--font-body); font-size: 1rem;
+  outline: none; transition: all 0.3s;
+}
+textarea:focus { border-color: var(--neon-cyan); box-shadow: 0 0 0 3px rgba(0,245,255,0.08); }
+.btn-wa {
+  display: inline-flex; align-items: center; gap: 0.75rem;
+  padding: 0.85rem 1.5rem; border: none; border-radius: 12px;
+  background: #25D366; color: white; font-family: var(--font-display);
+  font-size: 0.85rem; font-weight: 700; letter-spacing: 0.05em; cursor: pointer;
+  transition: all 0.3s; text-decoration: none;
+}
+.btn-wa:hover { background: #1ea952; transform: translateY(-2px); box-shadow: 0 10px 30px rgba(37,211,102,0.3); }
+.social-links { display: flex; gap: 1rem; margin-top: 0.5rem; }
+.social-btn {
+  width: 44px; height: 44px; border-radius: 12px;
+  border: 1px solid var(--glass-border); background: var(--glass);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.1rem; cursor: pointer; transition: all 0.3s; text-decoration: none;
+  color: var(--text-muted);
+}
+.social-btn:hover { border-color: var(--neon-cyan); color: var(--neon-cyan); transform: translateY(-3px); }
+
+/* DASHBOARD */
+#dashboard-overlay {
+  position: fixed; inset: 0; z-index: 800;
+  background: rgba(3,7,17,0.97); backdrop-filter: blur(20px);
+  opacity: 0; visibility: hidden; transition: all 0.3s;
+  display: flex;
+}
+#dashboard-overlay.open { opacity: 1; visibility: visible; }
+.dashboard-sidebar {
+  width: 260px; background: var(--dark-card);
+  border-right: 1px solid var(--glass-border);
+  padding: 2rem; display: flex; flex-direction: column; gap: 0.5rem;
+  flex-shrink: 0;
+}
+.dash-logo { font-family: var(--font-display); font-size: 1.4rem; font-weight: 900; color: var(--neon-cyan); margin-bottom: 2rem; }
+.dash-user { display: flex; align-items: center; gap: 1rem; padding: 1rem; background: var(--glass); border-radius: 12px; margin-bottom: 1.5rem; }
+.dash-avatar {
+  width: 48px; height: 48px; border-radius: 50%;
+  background: linear-gradient(135deg, var(--neon-cyan), var(--neon-purple));
+  display: flex; align-items: center; justify-content: center;
+  font-family: var(--font-display); font-weight: 700; color: var(--dark-bg);
+}
+.dash-username { font-family: var(--font-display); font-size: 0.9rem; }
+.dash-email { font-size: 0.75rem; color: var(--text-muted); }
+.dash-nav-item {
+  display: flex; align-items: center; gap: 0.75rem;
+  padding: 0.85rem 1rem; border-radius: 10px; cursor: pointer;
+  font-size: 0.9rem; color: var(--text-muted); transition: all 0.3s; border: none; background: none; width: 100%; text-align: left;
+}
+.dash-nav-item:hover, .dash-nav-item.active { background: var(--glass); color: var(--neon-cyan); }
+.dash-content { flex: 1; overflow-y: auto; padding: 2rem; }
+.dash-section { display: none; }
+.dash-section.active { display: block; }
+.dash-header { font-family: var(--font-display); font-size: 1.5rem; color: var(--neon-cyan); margin-bottom: 2rem; }
+.dash-stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1rem; margin-bottom: 2rem; }
+.dash-stat-card {
+  background: var(--dark-card); border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 16px; padding: 1.5rem; position: relative; overflow: hidden;
+}
+.dash-stat-card::before {
+  content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px;
+  background: linear-gradient(90deg, var(--neon-cyan), var(--neon-purple));
+}
+.dash-stat-num { font-family: var(--font-display); font-size: 2rem; font-weight: 900; color: var(--neon-cyan); }
+.dash-stat-label { font-size: 0.8rem; color: var(--text-muted); margin-top: 0.25rem; }
+.dash-close {
+  position: absolute; top: 1.5rem; right: 1.5rem;
+  width: 40px; height: 40px; border-radius: 50%;
+  border: 1px solid rgba(255,50,50,0.3); background: rgba(255,50,50,0.1);
+  color: #ff6b6b; cursor: pointer; font-size: 1.2rem;
+  display: flex; align-items: center; justify-content: center;
+}
+
+/* FOOTER */
+footer {
+  background: var(--dark-card); border-top: 1px solid var(--glass-border);
+  position: relative; z-index: 1;
+}
+.footer-inner { max-width: 1200px; margin: 0 auto; padding: 4rem 2rem 2rem; }
+.footer-top { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 3rem; margin-bottom: 3rem; }
+.footer-brand .brand-name {
+  font-family: var(--font-display); font-size: 1.5rem; font-weight: 900;
+  background: linear-gradient(135deg, var(--neon-cyan), var(--neon-purple));
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+  letter-spacing: 0.2em; margin-bottom: 0.75rem;
+}
+.footer-brand p { font-size: 0.9rem; color: var(--text-muted); line-height: 1.6; max-width: 280px; }
+.footer-col h4 { font-family: var(--font-display); font-size: 0.85rem; color: var(--text-primary); margin-bottom: 1.25rem; letter-spacing: 0.1em; }
+.footer-col ul { list-style: none; display: flex; flex-direction: column; gap: 0.75rem; }
+.footer-col ul li a { color: var(--text-muted); text-decoration: none; font-size: 0.85rem; transition: all 0.3s; }
+.footer-col ul li a:hover { color: var(--neon-cyan); }
+.footer-bottom {
+  border-top: 1px solid rgba(255,255,255,0.05);
+  padding-top: 1.5rem; display: flex; align-items: center; justify-content: space-between;
+  flex-wrap: wrap; gap: 1rem;
+}
+.footer-bottom p { font-size: 0.8rem; color: var(--text-muted); }
+.footer-bottom a { color: var(--neon-cyan); text-decoration: none; }
+
+/* SCROLL REVEAL */
+.reveal { opacity: 0; transform: translateY(40px); transition: all 0.7s cubic-bezier(0.25,1,0.5,1); }
+.reveal.visible { opacity: 1; transform: translateY(0); }
+
+/* FAB */
+#fab {
+  position: fixed; bottom: 2rem; right: 2rem; z-index: 100;
+  display: flex; flex-direction: column; gap: 0.75rem; align-items: flex-end;
+}
+.fab-btn {
+  width: 52px; height: 52px; border-radius: 50%; border: none; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.25rem; transition: all 0.3s; position: relative;
+}
+.fab-main { background: linear-gradient(135deg, var(--neon-cyan), var(--neon-purple)); color: var(--dark-bg); box-shadow: var(--glow-cyan); }
+.fab-wa { background: #25D366; color: white; box-shadow: 0 0 20px rgba(37,211,102,0.4); }
+.fab-btn:hover { transform: scale(1.1); }
+.fab-tooltip {
+  position: absolute; right: calc(100% + 10px); white-space: nowrap;
+  background: rgba(3,7,17,0.9); border: 1px solid var(--glass-border);
+  border-radius: 8px; padding: 0.4rem 0.75rem;
+  font-size: 0.75rem; color: var(--text-primary); opacity: 0; transition: opacity 0.2s;
+  pointer-events: none;
+}
+.fab-btn:hover .fab-tooltip { opacity: 1; }
+
+/* NOTIFICATION */
+#notification {
+  position: fixed; top: 6rem; right: 1.5rem; z-index: 600;
+  background: var(--dark-card); border: 1px solid var(--glass-border);
+  border-radius: 12px; padding: 1rem 1.25rem; max-width: 320px;
+  display: flex; align-items: center; gap: 0.75rem;
+  transform: translateX(120%); transition: transform 0.3s cubic-bezier(0.34,1.56,0.64,1);
+  box-shadow: var(--glow-cyan);
+}
+#notification.show { transform: translateX(0); }
+#notification .notif-icon { font-size: 1.25rem; }
+#notification .notif-text { font-size: 0.85rem; }
+
+/* LIGHT MODE */
+body.light {
+  --dark-bg: #f0f4f8;
+  --dark-card: #ffffff;
+  --dark-surface: #e8edf5;
+  --text-primary: #0d1526;
+  --text-muted: #5a6b7a;
+  --glass: rgba(0,0,0,0.04);
+  --glass-border: rgba(0,0,0,0.12);
+}
+
+/* SCROLL BAR */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: var(--dark-bg); }
+::-webkit-scrollbar-thumb { background: linear-gradient(var(--neon-cyan), var(--neon-purple)); border-radius: 3px; }
+
+/* RESPONSIVE */
+@media (max-width: 900px) {
+  .nav-links { display: none; }
+  .hamburger { display: flex; }
+  .footer-top { grid-template-columns: 1fr 1fr; }
+  .contact-wrap { grid-template-columns: 1fr; }
+  .dashboard-sidebar { width: 200px; }
+  .form-row { grid-template-columns: 1fr; }
+}
+@media (max-width: 600px) {
+  .footer-top { grid-template-columns: 1fr; }
+  .dashboard-sidebar { display: none; }
+  .hero-stats { gap: 2rem; }
+  .pricing-grid { grid-template-columns: 1fr; }
+}
+
+/* GLITCH EFFECT */
+@keyframes glitch {
+  0%,100%{clip-path:polygon(0 0,100% 0,100% 100%,0 100%);transform:translate(0)}
+  20%{clip-path:polygon(0 15%,100% 15%,100% 45%,0 45%);transform:translate(-2px,2px)}
+  40%{clip-path:polygon(0 55%,100% 55%,100% 80%,0 80%);transform:translate(2px,-2px)}
+  60%{clip-path:polygon(0 5%,100% 5%,100% 25%,0 25%);transform:translate(-1px,1px)}
+  80%{clip-path:polygon(0 70%,100% 70%,100% 95%,0 95%);transform:translate(1px,-1px)}
+}
+</style>
+</head>
+<body>
+
+<!-- CUSTOM CURSOR -->
+<div id="cursor"></div>
+<div id="cursor-ring"></div>
+
+<!-- PARTICLES -->
+<canvas id="particles-canvas"></canvas>
+
+<!-- LOADING SCREEN -->
+<div id="loading-screen">
+  <div class="loading-logo">KAMAL1</div>
+  <div class="loading-bar-wrap"><div class="loading-bar"></div></div>
+  <div class="loading-text">INITIALIZING SYSTEMS...</div>
+</div>
+
+<!-- NOTIFICATION -->
+<div id="notification">
+  <span class="notif-icon">✅</span>
+  <span class="notif-text" id="notif-text">Welcome back!</span>
+</div>
+
+<!-- AUTH OVERLAY -->
+<div id="auth-overlay">
+  <div class="auth-box">
+    <div class="auth-logo">
+      <div class="logo-text">KAMAL1</div>
+      <div class="logo-sub">Premium Gaming &amp; Web Services</div>
+    </div>
+    <div class="auth-tabs">
+      <button class="auth-tab active" onclick="switchTab('login')">LOGIN</button>
+      <button class="auth-tab" onclick="switchTab('signup')">SIGN UP</button>
+    </div>
+    <!-- LOGIN FORM -->
+    <form class="auth-form" id="login-form" onsubmit="handleLogin(event)">
+      <div class="auth-error" id="login-error"></div>
+      <div class="form-group">
+        <label>Email</label>
+        <input type="email" id="login-email" placeholder="your@email.com" required>
+      </div>
+      <div class="form-group">
+        <label>Password</label>
+        <input type="password" id="login-pass" placeholder="••••••••" required>
+      </div>
+      <div class="auth-extras">
+        <label><input type="checkbox" id="remember-me"> Remember Me</label>
+        <a href="#" onclick="showForgot()">Forgot Password?</a>
+      </div>
+      <button type="submit" class="btn-primary">⚡ LOGIN TO PORTAL</button>
+      <div class="auth-divider">OR</div>
+      <button type="button" class="btn-google" onclick="handleGoogleLogin()">
+        <svg width="18" height="18" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+        Continue with Google
+      </button>
+    </form>
+    <!-- SIGNUP FORM -->
+    <form class="auth-form hidden" id="signup-form" onsubmit="handleSignup(event)">
+      <div class="auth-error" id="signup-error"></div>
+      <div class="form-group">
+        <label>Username</label>
+        <input type="text" id="signup-username" placeholder="GamerTag" required>
+      </div>
+      <div class="form-group">
+        <label>Email</label>
+        <input type="email" id="signup-email" placeholder="your@email.com" required>
+      </div>
+      <div class="form-group">
+        <label>Password</label>
+        <input type="password" id="signup-pass" placeholder="Min 8 characters" required minlength="8">
+      </div>
+      <button type="submit" class="btn-primary">🚀 CREATE ACCOUNT</button>
+      <div class="auth-divider">OR</div>
+      <button type="button" class="btn-google" onclick="handleGoogleLogin()">
+        <svg width="18" height="18" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+        Continue with Google
+      </button>
+    </form>
+  </div>
+</div>
+
+<!-- DASHBOARD OVERLAY -->
+<div id="dashboard-overlay">
+  <button class="dash-close" onclick="closeDashboard()">✕</button>
+  <div class="dashboard-sidebar">
+    <div class="dash-logo">KAMAL1</div>
+    <div class="dash-user">
+      <div class="dash-avatar" id="dash-av">K</div>
+      <div>
+        <div class="dash-username" id="dash-uname">Player</div>
+        <div class="dash-email" id="dash-uemail">user@kamal1.com</div>
+      </div>
+    </div>
+    <button class="dash-nav-item active" onclick="showDashSection('overview', this)">🏠 Overview</button>
+    <button class="dash-nav-item" onclick="showDashSection('games', this)">🎮 My Games</button>
+    <button class="dash-nav-item" onclick="showDashSection('favorites', this)">⭐ Favorites</button>
+    <button class="dash-nav-item" onclick="showDashSection('settings', this)">⚙️ Settings</button>
+    <button class="dash-nav-item" onclick="handleLogout()" style="margin-top:auto; color:#ff6b6b;">🚪 Logout</button>
+  </div>
+  <div class="dash-content">
+    <div class="dash-section active" id="dash-overview">
+      <div class="dash-header" id="dash-welcome">Welcome back, Player!</div>
+      <div class="dash-stats">
+        <div class="dash-stat-card"><div class="dash-stat-num">5</div><div class="dash-stat-label">Games Available</div></div>
+        <div class="dash-stat-card"><div class="dash-stat-num">∞</div><div class="dash-stat-label">Play Time</div></div>
+        <div class="dash-stat-card"><div class="dash-stat-num">8</div><div class="dash-stat-label">Services</div></div>
+        <div class="dash-stat-card"><div class="dash-stat-num">24/7</div><div class="dash-stat-label">Support</div></div>
+      </div>
+      <div style="color:var(--text-muted); font-size:0.9rem; line-height:1.7;">
+        <p>🎮 Access 5 premium 3D browser games</p><br>
+        <p>💼 Order professional web services</p><br>
+        <p>📱 Mobile-optimized experience</p><br>
+        <p>🔒 Secure encrypted account</p>
+      </div>
+    </div>
+    <div class="dash-section" id="dash-games">
+      <div class="dash-header">My Games</div>
+      <div style="display:grid; gap:1rem;">
+        <div class="dash-stat-card">🏎️ Car Racing 3D <span style="float:right;color:var(--neon-green);font-size:0.8rem;">READY</span></div>
+        <div class="dash-stat-card">🏍️ Bike Stunt Simulator <span style="float:right;color:var(--neon-green);font-size:0.8rem;">READY</span></div>
+        <div class="dash-stat-card">🔫 FPS Shooting Arena <span style="float:right;color:var(--neon-green);font-size:0.8rem;">READY</span></div>
+        <div class="dash-stat-card">🏃 Subway Runner <span style="float:right;color:var(--neon-green);font-size:0.8rem;">READY</span></div>
+        <div class="dash-stat-card">🌍 Open World Survival <span style="float:right;color:var(--neon-green);font-size:0.8rem;">READY</span></div>
+      </div>
+    </div>
+    <div class="dash-section" id="dash-favorites">
+      <div class="dash-header">Favorites</div>
+      <p style="color:var(--text-muted);">Star your favorite games from the main page to see them here.</p>
+    </div>
+    <div class="dash-section" id="dash-settings">
+      <div class="dash-header">Account Settings</div>
+      <div style="display:flex; flex-direction:column; gap:1rem;">
+        <div class="dash-stat-card"><strong>Username:</strong> <span id="set-uname" style="color:var(--neon-cyan);">Player</span></div>
+        <div class="dash-stat-card"><strong>Email:</strong> <span id="set-email" style="color:var(--neon-cyan);">-</span></div>
+        <div class="dash-stat-card"><strong>Member Since:</strong> <span style="color:var(--neon-cyan);" id="set-joined">Today</span></div>
+        <button class="btn-primary" style="max-width:200px;" onclick="handleLogout()">Logout</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- GAME MODAL -->
+<div id="game-modal">
+  <div class="game-modal-header">
+    <div class="game-modal-title" id="game-modal-title">Game</div>
+    <button class="game-modal-close" onclick="closeGameModal()">✕</button>
+  </div>
+  <div id="game-canvas-wrap">
+    <canvas id="game-canvas"></canvas>
+  </div>
+</div>
+
+<!-- MAIN SITE -->
+<div id="main-site">
+
+<!-- NAV -->
+<nav id="navbar">
+  <a href="#" class="nav-logo">KAMAL1</a>
+  <ul class="nav-links">
+    <li><a href="#games">Games</a></li>
+    <li><a href="#services">Services</a></li>
+    <li><a href="#portfolio">Portfolio</a></li>
+    <li><a href="#pricing">Pricing</a></li>
+    <li><a href="#contact">Contact</a></li>
+  </ul>
+  <div class="nav-right">
+    <button class="theme-toggle" onclick="toggleTheme()" title="Toggle theme">🌙</button>
+    <div class="nav-user" id="nav-user-info" style="display:none;">
+      <div class="nav-avatar" id="nav-av">K</div>
+      <span id="nav-uname">Player</span>
+    </div>
+    <button class="btn-logout" id="nav-dashboard-btn" style="display:none;" onclick="openDashboard()">Dashboard</button>
+    <div class="hamburger" onclick="toggleMobile()">
+      <span></span><span></span><span></span>
+    </div>
+  </div>
+</nav>
+<div class="mobile-menu" id="mobile-menu">
+  <a href="#games" onclick="toggleMobile()">🎮 Games</a>
+  <a href="#services" onclick="toggleMobile()">💼 Services</a>
+  <a href="#portfolio" onclick="toggleMobile()">🖼️ Portfolio</a>
+  <a href="#pricing" onclick="toggleMobile()">💰 Pricing</a>
+  <a href="#contact" onclick="toggleMobile()">📞 Contact</a>
+  <a href="#" onclick="openDashboard(); toggleMobile()">👤 Dashboard</a>
+</div>
+
+<!-- HERO -->
+<section class="hero" id="home">
+  <div class="hero-bg"></div>
+  <div class="hero-grid"></div>
+  <div style="position:relative; z-index:2;">
+    <div class="hero-badge"><span class="badge-dot"></span>KAMAL1.COM.NP — LIVE NOW</div>
+    <h1 class="hero-title">
+      <span class="line1">PLAY. BUILD.</span>
+      <span class="line2">DOMINATE.</span>
+    </h1>
+    <p class="hero-sub">Premium 3D browser games meets professional web development. Experience the future of gaming and digital services — all in one platform.</p>
+    <div class="hero-cta">
+      <a href="#games" class="cta-primary">🎮 Play Games</a>
+      <a href="#contact" class="cta-secondary">💼 Order Website</a>
+    </div>
+    <div class="hero-stats">
+      <div class="hero-stat"><div class="num">5+</div><div class="label">3D Games</div></div>
+      <div class="hero-stat"><div class="num">8+</div><div class="label">Web Services</div></div>
+      <div class="hero-stat"><div class="num">100%</div><div class="label">Responsive</div></div>
+      <div class="hero-stat"><div class="num">24/7</div><div class="label">Support</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- GAMES -->
+<section id="games">
+  <div class="section-inner">
+    <div class="section-header reveal">
+      <div class="section-label">ARCADE</div>
+      <h2 class="section-title">Viral 3D <span>Browser Games</span></h2>
+      <p class="section-desc">Play premium WebGL-powered 3D games directly in your browser. No download required.</p>
+    </div>
+    <div class="games-grid reveal">
+      <div class="game-card" onclick="openGame('racing')">
+        <div class="game-thumb">
+          <div class="game-thumb-bg">🏎️</div>
+          <div class="game-thumb-overlay"></div>
+          <div class="game-play-btn">▶</div>
+          <div class="game-badge">HOT</div>
+        </div>
+        <div class="game-info">
+          <div class="game-title">Car Racing 3D</div>
+          <div class="game-meta">
+            <span class="game-genre">Racing · Arcade</span>
+            <span class="stars">★★★★★</span>
+          </div>
+          <div class="game-actions">
+            <button class="btn-play" onclick="openGame('racing')">▶ PLAY NOW</button>
+            <button class="btn-fullscreen" title="Fullscreen">⛶</button>
+          </div>
+        </div>
+      </div>
+      <div class="game-card" onclick="openGame('bike')">
+        <div class="game-thumb">
+          <div class="game-thumb-bg">🏍️</div>
+          <div class="game-thumb-overlay"></div>
+          <div class="game-play-btn">▶</div>
+          <div class="game-badge">NEW</div>
+        </div>
+        <div class="game-info">
+          <div class="game-title">Bike Stunt Simulator</div>
+          <div class="game-meta">
+            <span class="game-genre">Stunt · Sports</span>
+            <span class="stars">★★★★★</span>
+          </div>
+          <div class="game-actions">
+            <button class="btn-play" onclick="openGame('bike')">▶ PLAY NOW</button>
+            <button class="btn-fullscreen" title="Fullscreen">⛶</button>
+          </div>
+        </div>
+      </div>
+      <div class="game-card" onclick="openGame('fps')">
+        <div class="game-thumb">
+          <div class="game-thumb-bg">🔫</div>
+          <div class="game-thumb-overlay"></div>
+          <div class="game-play-btn">▶</div>
+          <div class="game-badge">TOP</div>
+        </div>
+        <div class="game-info">
+          <div class="game-title">FPS Shooting Arena</div>
+          <div class="game-meta">
+            <span class="game-genre">FPS · Action</span>
+            <span class="stars">★★★★☆</span>
+          </div>
+          <div class="game-actions">
+            <button class="btn-play" onclick="openGame('fps')">▶ PLAY NOW</button>
+            <button class="btn-fullscreen" title="Fullscreen">⛶</button>
+          </div>
+        </div>
+      </div>
+      <div class="game-card" onclick="openGame('subway')">
+        <div class="game-thumb">
+          <div class="game-thumb-bg">🏃</div>
+          <div class="game-thumb-overlay"></div>
+          <div class="game-play-btn">▶</div>
+          <div class="game-badge">VIRAL</div>
+        </div>
+        <div class="game-info">
+          <div class="game-title">Subway Runner</div>
+          <div class="game-meta">
+            <span class="game-genre">Runner · Endless</span>
+            <span class="stars">★★★★★</span>
+          </div>
+          <div class="game-actions">
+            <button class="btn-play" onclick="openGame('subway')">▶ PLAY NOW</button>
+            <button class="btn-fullscreen" title="Fullscreen">⛶</button>
+          </div>
+        </div>
+      </div>
+      <div class="game-card" onclick="openGame('survival')">
+        <div class="game-thumb">
+          <div class="game-thumb-bg">🌍</div>
+          <div class="game-thumb-overlay"></div>
+          <div class="game-play-btn">▶</div>
+          <div class="game-badge">EPIC</div>
+        </div>
+        <div class="game-info">
+          <div class="game-title">Open World Survival</div>
+          <div class="game-meta">
+            <span class="game-genre">Survival · Open World</span>
+            <span class="stars">★★★★★</span>
+          </div>
+          <div class="game-actions">
+            <button class="btn-play" onclick="openGame('survival')">▶ PLAY NOW</button>
+            <button class="btn-fullscreen" title="Fullscreen">⛶</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SERVICES -->
+<section id="services" style="background: linear-gradient(180deg, transparent, rgba(0,245,255,0.02), transparent);">
+  <div class="section-inner">
+    <div class="section-header reveal">
+      <div class="section-label">DIGITAL AGENCY</div>
+      <h2 class="section-title">Professional <span>Web Services</span></h2>
+      <p class="section-desc">We craft stunning, high-performance websites that convert visitors into customers.</p>
+    </div>
+    <div class="services-grid reveal">
+      <div class="service-card">
+        <div class="service-icon">🏢</div>
+        <div class="service-title">Business Website</div>
+        <div class="service-desc">Professional corporate websites with premium UI and seamless functionality.</div>
+        <span class="service-tag">FROM $99</span>
+      </div>
+      <div class="service-card">
+        <div class="service-icon">🎨</div>
+        <div class="service-title">Portfolio Website</div>
+        <div class="service-desc">Stunning portfolio sites to showcase your work and attract clients.</div>
+        <span class="service-tag">FROM $49</span>
+      </div>
+      <div class="service-card">
+        <div class="service-icon">🚀</div>
+        <div class="service-title">Landing Page</div>
+        <div class="service-desc">High-converting landing pages optimized for leads and sales.</div>
+        <span class="service-tag">FROM $29</span>
+      </div>
+      <div class="service-card">
+        <div class="service-icon">🏫</div>
+        <div class="service-title">School / College Site</div>
+        <div class="service-desc">Complete educational institution websites with portals and features.</div>
+        <span class="service-tag">FROM $149</span>
+      </div>
+      <div class="service-card">
+        <div class="service-icon">🛒</div>
+        <div class="service-title">E-Commerce Website</div>
+        <div class="service-desc">Full-featured online stores with payment gateways and inventory management.</div>
+        <span class="service-tag">FROM $199</span>
+      </div>
+      <div class="service-card">
+        <div class="service-icon">⚙️</div>
+        <div class="service-title">Web App Development</div>
+        <div class="service-desc">Custom web applications with powerful backends and modern frontends.</div>
+        <span class="service-tag">FROM $299</span>
+      </div>
+      <div class="service-card">
+        <div class="service-icon">📈</div>
+        <div class="service-title">SEO Optimization</div>
+        <div class="service-desc">Rank on top of Google with our proven SEO strategies and techniques.</div>
+        <span class="service-tag">FROM $79</span>
+      </div>
+      <div class="service-card">
+        <div class="service-icon">🔄</div>
+        <div class="service-title">Website Redesign</div>
+        <div class="service-desc">Transform your outdated website into a modern, high-performing platform.</div>
+        <span class="service-tag">FROM $89</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PORTFOLIO -->
+<section id="portfolio">
+  <div class="section-inner">
+    <div class="section-header reveal">
+      <div class="section-label">OUR WORK</div>
+      <h2 class="section-title">Premium <span>Portfolio</span></h2>
+      <p class="section-desc">A selection of our finest digital creations — each crafted with precision and passion.</p>
+    </div>
+    <div class="portfolio-grid reveal">
+      <div class="portfolio-card">
+        <div class="portfolio-preview">🛒</div>
+        <div class="portfolio-overlay"><button class="btn-view">View Project</button></div>
+        <div class="portfolio-info">
+          <div class="portfolio-title">NepShop E-Commerce</div>
+          <div class="portfolio-cat">E-Commerce Platform • React + Node.js</div>
+        </div>
+      </div>
+      <div class="portfolio-card">
+        <div class="portfolio-preview">🏫</div>
+        <div class="portfolio-overlay"><button class="btn-view">View Project</button></div>
+        <div class="portfolio-info">
+          <div class="portfolio-title">EduNepal College Portal</div>
+          <div class="portfolio-cat">Education Platform • Full Stack</div>
+        </div>
+      </div>
+      <div class="portfolio-card">
+        <div class="portfolio-preview">💼</div>
+        <div class="portfolio-overlay"><button class="btn-view">View Project</button></div>
+        <div class="portfolio-info">
+          <div class="portfolio-title">ProAgency Landing Page</div>
+          <div class="portfolio-cat">Business Landing Page • High Conversion</div>
+        </div>
+      </div>
+      <div class="portfolio-card">
+        <div class="portfolio-preview">🎨</div>
+        <div class="portfolio-overlay"><button class="btn-view">View Project</button></div>
+        <div class="portfolio-info">
+          <div class="portfolio-title">Artist Portfolio</div>
+          <div class="portfolio-cat">Creative Portfolio • Framer Motion</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FEATURES -->
+<section id="features" style="background: linear-gradient(180deg, transparent, rgba(191,0,255,0.02), transparent);">
+  <div class="section-inner">
+    <div class="section-header reveal">
+      <div class="section-label">WHY KAMAL1</div>
+      <h2 class="section-title">Built With <span>Excellence</span></h2>
+    </div>
+    <div class="features-grid reveal">
+      <div class="feature-item"><div class="feature-icon">📱</div><div class="feature-name">Responsive Design</div></div>
+      <div class="feature-item"><div class="feature-icon">⚡</div><div class="feature-name">Ultra Fast Performance</div></div>
+      <div class="feature-item"><div class="feature-icon">🔍</div><div class="feature-name">SEO Friendly</div></div>
+      <div class="feature-item"><div class="feature-icon">🛡️</div><div class="feature-name">Cloudflare Protection</div></div>
+      <div class="feature-item"><div class="feature-icon">🔐</div><div class="feature-name">Secure Authentication</div></div>
+      <div class="feature-item"><div class="feature-icon">🎨</div><div class="feature-name">Professional UI/UX</div></div>
+      <div class="feature-item"><div class="feature-icon">🌐</div><div class="feature-name">Modern 3D Design</div></div>
+      <div class="feature-item"><div class="feature-icon">📲</div><div class="feature-name">Mobile Optimized</div></div>
+      <div class="feature-item"><div class="feature-icon">🕐</div><div class="feature-name">24/7 Support</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- PRICING -->
+<section id="pricing">
+  <div class="section-inner">
+    <div class="section-header reveal">
+      <div class="section-label">PRICING</div>
+      <h2 class="section-title">Choose Your <span>Plan</span></h2>
+      <p class="section-desc">Transparent pricing with no hidden fees. Every plan includes premium support.</p>
+    </div>
+    <div class="pricing-grid reveal">
+      <div class="pricing-card">
+        <div class="pricing-tier">BASIC</div>
+        <div class="pricing-price">$49 <span>/ project</span></div>
+        <div class="pricing-desc">Perfect for small businesses and personal projects.</div>
+        <ul class="pricing-features">
+          <li>Landing Page or Portfolio</li>
+          <li>Mobile Responsive</li>
+          <li>Basic SEO Setup</li>
+          <li>3 Revisions</li>
+          <li>7-Day Delivery</li>
+          <li>Source Files Included</li>
+        </ul>
+        <a href="#contact" class="btn-primary" style="display:block; text-align:center; text-decoration:none;">Get Started</a>
+      </div>
+      <div class="pricing-card featured">
+        <div class="pricing-tier">PROFESSIONAL</div>
+        <div class="pricing-price">$149 <span>/ project</span></div>
+        <div class="pricing-desc">Best for businesses that want a powerful online presence.</div>
+        <ul class="pricing-features">
+          <li>Full Business Website</li>
+          <li>Custom Design</li>
+          <li>Advanced SEO</li>
+          <li>Unlimited Revisions</li>
+          <li>5-Day Delivery</li>
+          <li>Admin Dashboard</li>
+          <li>1 Month Support</li>
+        </ul>
+        <a href="#contact" class="btn-primary" style="display:block; text-align:center; text-decoration:none;">Get Started</a>
+      </div>
+      <div class="pricing-card">
+        <div class="pricing-tier">PREMIUM</div>
+        <div class="pricing-price">$299 <span>/ project</span></div>
+        <div class="pricing-desc">Enterprise-grade web applications and e-commerce platforms.</div>
+        <ul class="pricing-features">
+          <li>E-Commerce / Web App</li>
+          <li>Backend Development</li>
+          <li>Database Integration</li>
+          <li>Payment Gateway</li>
+          <li>3 Months Support</li>
+          <li>Cloudflare CDN Setup</li>
+          <li>Performance Audit</li>
+        </ul>
+        <a href="#contact" class="btn-primary" style="display:block; text-align:center; text-decoration:none;">Get Started</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- TESTIMONIALS -->
+<section id="testimonials" style="background: linear-gradient(180deg, transparent, rgba(0,245,255,0.02), transparent);">
+  <div class="section-inner">
+    <div class="section-header reveal">
+      <div class="section-label">REVIEWS</div>
+      <h2 class="section-title">What Clients <span>Say</span></h2>
+    </div>
+    <div class="testimonials-grid reveal">
+      <div class="testimonial-card">
+        <div class="testimonial-quote">"</div>
+        <div class="testimonial-text">Kamal delivered an absolutely stunning e-commerce website. The design is futuristic, the performance is blazing fast, and our conversions increased by 3x. Highly recommended!</div>
+        <div class="testimonial-user">
+          <div class="testimonial-avatar">R</div>
+          <div><div class="testimonial-name">Raj Sharma</div><div class="testimonial-role">CEO, NepShop</div></div>
+          <div style="margin-left:auto;color:#ffd700;">★★★★★</div>
+        </div>
+      </div>
+      <div class="testimonial-card">
+        <div class="testimonial-quote">"</div>
+        <div class="testimonial-text">The college portal he built for us is exceptional. Students love it, teachers love it. Professional, fast, and exactly what we envisioned. 10/10 service!</div>
+        <div class="testimonial-user">
+          <div class="testimonial-avatar">P</div>
+          <div><div class="testimonial-name">Priya Thapa</div><div class="testimonial-role">Principal, EduNepal</div></div>
+          <div style="margin-left:auto;color:#ffd700;">★★★★★</div>
+        </div>
+      </div>
+      <div class="testimonial-card">
+        <div class="testimonial-quote">"</div>
+        <div class="testimonial-text">Incredible gaming platform! The 3D games are smooth and the website itself is a work of art. The authentication system is rock solid. Love it!</div>
+        <div class="testimonial-user">
+          <div class="testimonial-avatar">A</div>
+          <div><div class="testimonial-name">Arun KC</div><div class="testimonial-role">Gamer & Client</div></div>
+          <div style="margin-left:auto;color:#ffd700;">★★★★★</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CONTACT -->
+<section id="contact">
+  <div class="section-inner">
+    <div class="section-header reveal">
+      <div class="section-label">GET IN TOUCH</div>
+      <h2 class="section-title">Let's Build <span>Together</span></h2>
+      <p class="section-desc">Ready to elevate your digital presence? Contact us today for a free consultation.</p>
+    </div>
+    <div class="contact-wrap reveal">
+      <div class="contact-info">
+        <div class="contact-card">
+          <div class="contact-card-icon">📱</div>
+          <div>
+            <div class="contact-card-label">WhatsApp</div>
+            <div class="contact-card-value"><a href="https://wa.me/9779763940205">+977 9763940205</a></div>
+          </div>
+        </div>
+        <div class="contact-card">
+          <div class="contact-card-icon">📧</div>
+          <div>
+            <div class="contact-card-label">Email</div>
+            <div class="contact-card-value"><a href="mailto:kamalxpress1@gmail.com">kamalxpress1@gmail.com</a></div>
+          </div>
+        </div>
+        <div class="contact-card">
+          <div class="contact-card-icon">🌐</div>
+          <div>
+            <div class="contact-card-label">Website</div>
+            <div class="contact-card-value"><a href="#">kamal1.com.np</a></div>
+          </div>
+        </div>
+        <div class="contact-card">
+          <div class="contact-card-icon">🕐</div>
+          <div>
+            <div class="contact-card-label">Support Hours</div>
+            <div class="contact-card-value">24/7 — Always Online</div>
+          </div>
+        </div>
+        <a href="https://wa.me/9779763940205" class="btn-wa" target="_blank">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="white"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+          Chat on WhatsApp
+        </a>
+        <div class="social-links">
+          <a href="#" class="social-btn" title="GitHub">📦</a>
+          <a href="#" class="social-btn" title="Twitter">🐦</a>
+          <a href="#" class="social-btn" title="Instagram">📸</a>
+          <a href="#" class="social-btn" title="LinkedIn">💼</a>
+          <a href="#" class="social-btn" title="YouTube">▶️</a>
+        </div>
+      </div>
+      <div class="contact-form-wrap">
+        <h3 style="font-family:var(--font-display); margin-bottom:1.5rem; color:var(--neon-cyan);">Send a Message</h3>
+        <form class="contact-form" onsubmit="handleContactForm(event)">
+          <div class="form-row">
+            <div class="form-group"><label>Name</label><input type="text" placeholder="Your Name" required></div>
+            <div class="form-group"><label>Email</label><input type="email" placeholder="your@email.com" required></div>
+          </div>
+          <div class="form-group"><label>Service Needed</label><input type="text" placeholder="e.g. E-Commerce Website"></div>
+          <div class="form-group"><label>Budget</label><input type="text" placeholder="e.g. $100–$200"></div>
+          <div class="form-group"><label>Message</label><textarea placeholder="Tell us about your project..."></textarea></div>
+          <button type="submit" class="btn-primary">🚀 Send Message</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-inner">
+    <div class="footer-top">
+      <div class="footer-brand">
+        <div class="brand-name">KAMAL1</div>
+        <p>Premium gaming platform and professional web agency. Play games, order websites, and dominate the digital world — all from kamal1.com.np.</p>
+        <div class="social-links" style="margin-top:1.5rem;">
+          <a href="#" class="social-btn">📦</a>
+          <a href="#" class="social-btn">🐦</a>
+          <a href="#" class="social-btn">📸</a>
+          <a href="#" class="social-btn">💼</a>
+        </div>
+      </div>
+      <div class="footer-col">
+        <h4>Platform</h4>
+        <ul>
+          <li><a href="#games">Games</a></li>
+          <li><a href="#services">Services</a></li>
+          <li><a href="#portfolio">Portfolio</a></li>
+          <li><a href="#pricing">Pricing</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Services</h4>
+        <ul>
+          <li><a href="#services">Business Website</a></li>
+          <li><a href="#services">E-Commerce</a></li>
+          <li><a href="#services">SEO</a></li>
+          <li><a href="#services">Web App</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Legal</h4>
+        <ul>
+          <li><a href="#">Privacy Policy</a></li>
+          <li><a href="#">Terms of Service</a></li>
+          <li><a href="#">Cookie Policy</a></li>
+          <li><a href="#contact">Contact</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>© 2025 <a href="#">kamal1.com.np</a>. All rights reserved. Built with ❤️ in Nepal.</p>
+      <p>📧 <a href="mailto:kamalxpress1@gmail.com">kamalxpress1@gmail.com</a> &nbsp;|&nbsp; 📱 <a href="https://wa.me/9779763940205">+977 9763940205</a></p>
+    </div>
+  </div>
+</footer>
+
+</div><!-- /main-site -->
+
+<!-- FAB -->
+<div id="fab">
+  <div class="fab-btn fab-wa" onclick="window.open('https://wa.me/9779763940205','_blank')" title="WhatsApp">
+    <span class="fab-tooltip">WhatsApp Us</span>
+    💬
+  </div>
+  <div class="fab-btn fab-main" onclick="document.querySelector('#home').scrollIntoView({behavior:'smooth'})" title="Top">
+    <span class="fab-tooltip">Back to Top</span>
+    ↑
+  </div>
+</div>
+
+<script>
+// ---- STATE ----
+let currentUser = null;
+let users = JSON.parse(localStorage.getItem('k1_users') || '{}');
+
+// ---- CURSOR ----
+const cursor = document.getElementById('cursor');
+const cursorRing = document.getElementById('cursor-ring');
+document.addEventListener('mousemove', e => {
+  cursor.style.left = e.clientX + 'px';
+  cursor.style.top = e.clientY + 'px';
+  cursorRing.style.left = e.clientX + 'px';
+  cursorRing.style.top = e.clientY + 'px';
+});
+
+// ---- PARTICLES ----
+const canvas = document.getElementById('particles-canvas');
+const ctx = canvas.getContext('2d');
+let particles = [];
+function resizeCanvas() {
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+}
+resizeCanvas();
+window.addEventListener('resize', resizeCanvas);
+class Particle {
+  constructor() { this.reset(); }
+  reset() {
+    this.x = Math.random() * canvas.width;
+    this.y = Math.random() * canvas.height;
+    this.vx = (Math.random() - 0.5) * 0.4;
+    this.vy = (Math.random() - 0.5) * 0.4;
+    this.size = Math.random() * 1.5 + 0.3;
+    this.alpha = Math.random() * 0.5 + 0.1;
+    this.color = Math.random() > 0.5 ? '0,245,255' : '191,0,255';
+  }
+  update() {
+    this.x += this.vx; this.y += this.vy;
+    if (this.x < 0 || this.x > canvas.width || this.y < 0 || this.y > canvas.height) this.reset();
+  }
+  draw() {
+    ctx.beginPath();
+    ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+    ctx.fillStyle = `rgba(${this.color},${this.alpha})`;
+    ctx.fill();
+  }
+}
+for (let i = 0; i < 120; i++) particles.push(new Particle());
+function animateParticles() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  particles.forEach(p => { p.update(); p.draw(); });
+  // draw connections
+  for (let i = 0; i < particles.length; i++) {
+    for (let j = i + 1; j < particles.length; j++) {
+      const dx = particles[i].x - particles[j].x;
+      const dy = particles[i].y - particles[j].y;
+      const dist = Math.sqrt(dx*dx + dy*dy);
+      if (dist < 100) {
+        ctx.beginPath();
+        ctx.moveTo(particles[i].x, particles[i].y);
+        ctx.lineTo(particles[j].x, particles[j].y);
+        ctx.strokeStyle = `rgba(0,245,255,${0.08 * (1 - dist/100)})`;
+        ctx.lineWidth = 0.5;
+        ctx.stroke();
+      }
+    }
+  }
+  requestAnimationFrame(animateParticles);
+}
+animateParticles();
+
+// ---- LOADING ----
+window.addEventListener('load', () => {
+  setTimeout(() => {
+    document.getElementById('loading-screen').classList.add('hidden');
+    checkSession();
+  }, 2200);
+});
+
+// ---- AUTH ----
+function hashPassword(pass) {
+  // Simple hash for demo (use bcrypt in production)
+  let hash = 0;
+  for (let c of pass) hash = ((hash << 5) - hash) + c.charCodeAt(0);
+  return hash.toString(36);
+}
+
+function checkSession() {
+  const remember = localStorage.getItem('k1_remember');
+  const session = sessionStorage.getItem('k1_session') || (remember ? remember : null);
+  if (session) {
+    const user = users[session];
+    if (user) { loginUser(user, false); return; }
+  }
+  document.getElementById('auth-overlay').classList.remove('hidden');
+}
+
+function switchTab(tab) {
+  document.querySelectorAll('.auth-tab').forEach((t, i) => {
+    t.classList.toggle('active', (i === 0 && tab === 'login') || (i === 1 && tab === 'signup'));
+  });
+  document.getElementById('login-form').classList.toggle('hidden', tab !== 'login');
+  document.getElementById('signup-form').classList.toggle('hidden', tab !== 'signup');
+}
+
+function handleSignup(e) {
+  e.preventDefault();
+  const username = document.getElementById('signup-username').value.trim();
+  const email = document.getElementById('signup-email').value.trim().toLowerCase();
+  const pass = document.getElementById('signup-pass').value;
+  const errEl = document.getElementById('signup-error');
+  if (users[email]) {
+    errEl.textContent = 'Account already exists. Please login.';
+    errEl.classList.add('show'); return;
+  }
+  const user = { username, email, password: hashPassword(pass), joined: new Date().toLocaleDateString(), avatar: username[0].toUpperCase() };
+  users[email] = user;
+  localStorage.setItem('k1_users', JSON.stringify(users));
+  loginUser(user, true);
+}
+
+function handleLogin(e) {
+  e.preventDefault();
+  const email = document.getElementById('login-email').value.trim().toLowerCase();
+  const pass = document.getElementById('login-pass').value;
+  const remember = document.getElementById('remember-me').checked;
+  const errEl = document.getElementById('login-error');
+  const user = users[email];
+  if (!user || user.password !== hashPassword(pass)) {
+    errEl.textContent = 'Invalid email or password. Try again.';
+    errEl.classList.add('show'); return;
+  }
+  if (remember) localStorage.setItem('k1_remember', email);
+  sessionStorage.setItem('k1_session', email);
+  loginUser(user, true);
+}
+
+function handleGoogleLogin() {
+  // Simulate Google login
+  const mockUser = { username: 'GoogleUser', email: 'google@kamal1.com', password: '', joined: new Date().toLocaleDateString(), avatar: 'G' };
+  users[mockUser.email] = mockUser;
+  localStorage.setItem('k1_users', JSON.stringify(users));
+  sessionStorage.setItem('k1_session', mockUser.email);
+  loginUser(mockUser, true);
+}
+
+function loginUser(user, showWelcome) {
+  currentUser = user;
+  document.getElementById('auth-overlay').classList.add('hidden');
+  // Update nav
+  document.getElementById('nav-av').textContent = user.avatar;
+  document.getElementById('nav-uname').textContent = user.username;
+  document.getElementById('nav-user-info').style.display = 'flex';
+  document.getElementById('nav-dashboard-btn').style.display = 'block';
+  // Update dashboard
+  document.getElementById('dash-av').textContent = user.avatar;
+  document.getElementById('dash-uname').textContent = user.username;
+  document.getElementById('dash-uemail').textContent = user.email;
+  document.getElementById('dash-welcome').textContent = `Welcome back, ${user.username}!`;
+  document.getElementById('set-uname').textContent = user.username;
+  document.getElementById('set-email').textContent = user.email;
+  document.getElementById('set-joined').textContent = user.joined;
+  if (showWelcome) showNotification(`Welcome back, ${user.username}! 🎮`);
+}
+
+function handleLogout() {
+  currentUser = null;
+  sessionStorage.removeItem('k1_session');
+  localStorage.removeItem('k1_remember');
+  closeDashboard();
+  document.getElementById('nav-user-info').style.display = 'none';
+  document.getElementById('nav-dashboard-btn').style.display = 'none';
+  document.getElementById('auth-overlay').classList.remove('hidden');
+  switchTab('login');
+}
+
+function showForgot() {
+  showNotification('Password reset link sent to your email! 📧');
+}
+
+// ---- DASHBOARD ----
+function openDashboard() { document.getElementById('dashboard-overlay').classList.add('open'); }
+function closeDashboard() { document.getElementById('dashboard-overlay').classList.remove('open'); }
+function showDashSection(id, btn) {
+  document.querySelectorAll('.dash-section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.dash-nav-item').forEach(b => b.classList.remove('active'));
+  document.getElementById('dash-' + id).classList.add('active');
+  if (btn) btn.classList.add('active');
+}
+
+// ---- GAMES ----
+const games = {
+  racing: { name: 'Car Racing 3D', color1: '#00f5ff', color2: '#bf00ff' },
+  bike: { name: 'Bike Stunt Simulator', color1: '#39ff14', color2: '#00f5ff' },
+  fps: { name: 'FPS Shooting Arena', color1: '#ff6b00', color2: '#ff0040' },
+  subway: { name: 'Subway Runner', color1: '#00f5ff', color2: '#39ff14' },
+  survival: { name: 'Open World Survival', color1: '#ffd700', color2: '#39ff14' }
+};
+let activeGame = null;
+let gameAnimFrame = null;
+
+function openGame(type) {
+  activeGame = type;
+  const g = games[type];
+  document.getElementById('game-modal-title').textContent = '🎮 ' + g.name;
+  document.getElementById('game-modal').classList.add('open');
+  const canvas = document.getElementById('game-canvas');
+  canvas.width = canvas.offsetWidth || window.innerWidth;
+  canvas.height = canvas.offsetHeight || window.innerHeight - 60;
+  cancelAnimationFrame(gameAnimFrame);
+  startGame(type, canvas);
+}
+
+function closeGameModal() {
+  document.getElementById('game-modal').classList.remove('open');
+  cancelAnimationFrame(gameAnimFrame);
+  activeGame = null;
+}
+
+function startGame(type, canvas) {
+  const c = canvas.getContext('2d');
+  // Resize
+  function resize() {
+    canvas.width = canvas.parentElement.offsetWidth;
+    canvas.height = canvas.parentElement.offsetHeight;
+  }
+  resize();
+  window.addEventListener('resize', resize);
+
+  if (type === 'racing') startRacingGame(c, canvas);
+  else if (type === 'subway') startSubwayGame(c, canvas);
+  else if (type === 'fps') startFPSGame(c, canvas);
+  else if (type === 'bike') startBikeGame(c, canvas);
+  else startSurvivalGame(c, canvas);
+}
+
+// ---- RACING GAME ----
+function startRacingGame(c, canvas) {
+  let car = { x: 0, y: 0, w: 40, h: 70, speed: 0, angle: 0, score: 0 };
+  let obstacles = [];
+  let road = { lines: [] };
+  let keys = {};
+  let camX = 0, camY = 0;
+
+  function init() {
+    car.x = canvas.width / 2;
+    car.y = canvas.height - 150;
+    car.speed = 0; car.angle = 0; car.score = 0; obstacles = [];
+    for (let i = 0; i < 20; i++) road.lines.push({ y: i * 60 });
+    spawnObstacles();
+  }
+
+  function spawnObstacles() {
+    for (let i = 0; i < 8; i++) {
+      obstacles.push({
+        x: canvas.width * 0.2 + Math.random() * canvas.width * 0.6,
+        y: Math.random() * canvas.height * 2 - canvas.height * 2,
+        w: 45, h: 75, color: ['#ff6b00','#bf00ff','#ff0040'][Math.floor(Math.random()*3)]
+      });
+    }
+  }
+
+  document.addEventListener('keydown', e => keys[e.key] = true);
+  document.addEventListener('keyup', e => keys[e.key] = false);
+
+  // Touch
+  let touchX = null;
+  canvas.addEventListener('touchstart', e => { touchX = e.touches[0].clientX; });
+  canvas.addEventListener('touchmove', e => {
+    const dx = e.touches[0].clientX - touchX;
+    if (dx < -20) { keys['ArrowLeft'] = true; keys['ArrowRight'] = false; }
+    else if (dx > 20) { keys['ArrowRight'] = true; keys['ArrowLeft'] = false; }
+  });
+  canvas.addEventListener('touchend', () => { keys['ArrowLeft'] = false; keys['ArrowRight'] = false; });
+
+  let crashed = false, gameOver = false;
+  init();
+
+  function draw() {
+    const W = canvas.width, H = canvas.height;
+    // Road bg
+    c.fillStyle = '#1a2a1a';
+    c.fillRect(0, 0, W, H);
+    // Road
+    c.fillStyle = '#2a3a2a';
+    c.fillRect(W*0.15, 0, W*0.7, H);
+    // Road edges
+    c.strokeStyle = '#ffd700'; c.lineWidth = 4;
+    c.beginPath(); c.moveTo(W*0.15, 0); c.lineTo(W*0.15, H); c.stroke();
+    c.beginPath(); c.moveTo(W*0.85, 0); c.lineTo(W*0.85, H); c.stroke();
+    // Center lines
+    road.lines.forEach(l => {
+      c.fillStyle = '#ffffff44';
+      c.fillRect(W*0.5 - 4, l.y, 8, 40);
+    });
+    // Obstacles
+    obstacles.forEach(o => {
+      c.save();
+      c.fillStyle = o.color;
+      c.shadowColor = o.color; c.shadowBlur = 15;
+      c.fillRect(o.x - o.w/2, o.y - o.h/2, o.w, o.h);
+      c.fillStyle = '#ffffff22';
+      c.fillRect(o.x - o.w/2 + 8, o.y - o.h/2 + 10, 10, 20);
+      c.fillRect(o.x + o.w/2 - 18, o.y - o.h/2 + 10, 10, 20);
+      c.restore();
+    });
+    // Car
+    c.save();
+    c.translate(car.x, car.y);
+    c.shadowColor = '#00f5ff'; c.shadowBlur = 20;
+    c.fillStyle = '#00f5ff';
+    c.fillRect(-car.w/2, -car.h/2, car.w, car.h);
+    c.fillStyle = '#ffffff44';
+    c.fillRect(-car.w/2 + 6, -car.h/2 + 12, 12, 18);
+    c.fillRect(car.w/2 - 18, -car.h/2 + 12, 12, 18);
+    // wheels
+    c.fillStyle = '#0a0f1e';
+    [[-car.w/2-5, -car.h/2+10], [car.w/2-2, -car.h/2+10], [-car.w/2-5, car.h/2-25], [car.w/2-2, car.h/2-25]].forEach(([wx, wy]) => {
+      c.fillRect(wx, wy, 7, 15);
+    });
+    c.restore();
+    // HUD
+    c.fillStyle = 'rgba(0,0,0,0.6)';
+    c.fillRect(10, 10, 200, 90);
+    c.fillStyle = '#00f5ff';
+    c.font = `bold 14px 'Orbitron', monospace`;
+    c.fillText(`SCORE: ${car.score}`, 20, 35);
+    c.fillText(`SPEED: ${Math.abs(car.speed.toFixed(1))*100|0} km/h`, 20, 55);
+    c.fillStyle = '#ffffff88';
+    c.font = '11px monospace';
+    c.fillText('← → Arrow Keys | Mobile: Swipe', 20, 80);
+
+    if (gameOver) {
+      c.fillStyle = 'rgba(0,0,0,0.8)';
+      c.fillRect(0, 0, W, H);
+      c.fillStyle = '#ff0040';
+      c.font = `bold 36px 'Orbitron'`;
+      c.textAlign = 'center';
+      c.fillText('GAME OVER', W/2, H/2 - 20);
+      c.fillStyle = '#00f5ff';
+      c.font = `18px 'Orbitron'`;
+      c.fillText(`Score: ${car.score}`, W/2, H/2 + 20);
+      c.fillStyle = '#ffffff88';
+      c.font = '14px monospace';
+      c.fillText('Press SPACE or tap to restart', W/2, H/2 + 55);
+      c.textAlign = 'left';
+    }
+  }
+
+  function update() {
+    if (gameOver) return;
+    if (keys['ArrowLeft'] || keys['a']) car.x -= 4;
+    if (keys['ArrowRight'] || keys['d']) car.x += 4;
+    car.x = Math.max(canvas.width*0.15 + car.w/2, Math.min(canvas.width*0.85 - car.w/2, car.x));
+    car.speed = Math.min(car.speed + 0.02, 6);
+    car.score += Math.floor(car.speed * 0.5);
+    // move lines
+    road.lines.forEach(l => { l.y += car.speed * 3; if (l.y > canvas.height) l.y -= 1200; });
+    // move obstacles
+    obstacles.forEach(o => {
+      o.y += car.speed * 3;
+      if (o.y > canvas.height + 100) { o.y = -200; o.x = canvas.width*0.2 + Math.random() * canvas.width*0.6; }
+      // collision
+      if (Math.abs(o.x - car.x) < (o.w/2 + car.w/2 - 5) && Math.abs(o.y - car.y) < (o.h/2 + car.h/2 - 5)) {
+        gameOver = true;
+      }
+    });
+  }
+
+  document.addEventListener('keydown', e => { if (e.code === 'Space' && gameOver) { gameOver = false; init(); } });
+  canvas.addEventListener('click', () => { if (gameOver) { gameOver = false; init(); } });
+
+  function loop() {
+    update(); draw();
+    gameAnimFrame = requestAnimationFrame(loop);
+  }
+  loop();
+}
+
+// ---- SUBWAY RUNNER ----
+function startSubwayGame(c, canvas) {
+  let player = { x: 0, y: 0, lane: 1, w: 30, h: 50, jumping: false, vy: 0 };
+  let obstacles = [], coins = [], speed = 5, score = 0, gameOver = false;
+  const lanes = [0, 0, 0];
+
+  function init() {
+    player.lane = 1; player.y = 0; player.jumping = false; player.vy = 0;
+    obstacles = []; coins = []; speed = 5; score = 0; gameOver = false;
+  }
+
+  function getLaneX(lane) { return canvas.width/2 + (lane-1) * 100; }
+
+  function spawnObs() {
+    const l = Math.floor(Math.random()*3);
+    obstacles.push({ lane: l, y: -60, w: 40, h: 50 });
+  }
+  function spawnCoin() {
+    const l = Math.floor(Math.random()*3);
+    coins.push({ lane: l, y: -30, r: 10 });
+  }
+
+  document.addEventListener('keydown', e => {
+    if (e.key === 'ArrowLeft' && player.lane > 0) player.lane--;
+    if (e.key === 'ArrowRight' && player.lane < 2) player.lane++;
+    if ((e.key === 'ArrowUp' || e.code === 'Space') && !player.jumping) { player.vy = -15; player.jumping = true; }
+    if (e.code === 'Space' && gameOver) { init(); }
+  });
+
+  let touchStartX = 0, touchStartY = 0;
+  canvas.addEventListener('touchstart', e => { touchStartX = e.touches[0].clientX; touchStartY = e.touches[0].clientY; });
+  canvas.addEventListener('touchend', e => {
+    const dx = e.changedTouches[0].clientX - touchStartX;
+    const dy = e.changedTouches[0].clientY - touchStartY;
+    if (gameOver) { init(); return; }
+    if (Math.abs(dx) > Math.abs(dy)) {
+      if (dx < -30 && player.lane > 0) player.lane--;
+      if (dx > 30 && player.lane < 2) player.lane++;
+    } else {
+      if (dy < -30 && !player.jumping) { player.vy = -15; player.jumping = true; }
+    }
+  });
+
+  let frame = 0;
+  init();
+
+  function loop() {
+    const W = canvas.width, H = canvas.height;
+    c.fillStyle = '#0a0f1e';
+    c.fillRect(0, 0, W, H);
+    // Draw tracks
+    const ground = H - 100;
+    lanes.forEach((_, i) => {
+      const lx = W/2 + (i-1)*100;
+      c.fillStyle = i===1 ? '#1a2040' : '#131830';
+      c.fillRect(lx - 50, 0, 100, H);
+      c.strokeStyle = '#ffffff11'; c.lineWidth = 1;
+      c.beginPath(); c.moveTo(lx-50, 0); c.lineTo(lx-50, H); c.stroke();
+      c.beginPath(); c.moveTo(lx+50, 0); c.lineTo(lx+50, H); c.stroke();
+    });
+    // Ground
+    c.fillStyle = '#0d1226';
+    c.fillRect(0, ground, W, H - ground);
+    c.fillStyle = '#00f5ff33';
+    c.fillRect(0, ground, W, 2);
+
+    if (!gameOver) {
+      frame++;
+      if (frame % 80 === 0) spawnObs();
+      if (frame % 50 === 0) spawnCoin();
+      speed += 0.002; score++;
+      // player physics
+      const targetX = getLaneX(player.lane);
+      player.x += (targetX - player.x) * 0.2;
+      player.y += player.vy;
+      player.vy += 0.9;
+      const playerBottom = ground - player.h;
+      if (player.y >= playerBottom) { player.y = playerBottom; player.vy = 0; player.jumping = false; }
+      // update obstacles
+      obstacles.forEach(o => {
+        o.y += speed;
+        const ox = getLaneX(o.lane);
+        if (Math.abs(ox - player.x) < (o.w/2 + player.w/2 - 8) && Math.abs(o.y - player.y) < (o.h/2 + player.h/2 - 8)) gameOver = true;
+      });
+      obstacles = obstacles.filter(o => o.y < H + 100);
+      // update coins
+      coins.forEach(coin => {
+        coin.y += speed;
+        const cx = getLaneX(coin.lane);
+        if (Math.abs(cx - player.x) < 40 && Math.abs(coin.y - player.y) < 40) { coin.collected = true; score += 50; }
+      });
+      coins = coins.filter(c2 => c2.y < H + 50 && !c2.collected);
+    }
+
+    // Draw coins
+    coins.forEach(coin => {
+      const cx = getLaneX(coin.lane);
+      c.beginPath(); c.arc(cx, coin.y, coin.r, 0, Math.PI*2);
+      c.fillStyle = '#ffd700'; c.shadowColor = '#ffd700'; c.shadowBlur = 12; c.fill(); c.shadowBlur = 0;
+    });
+    // Draw obstacles
+    obstacles.forEach(o => {
+      const ox = getLaneX(o.lane);
+      c.fillStyle = '#ff6b00'; c.shadowColor = '#ff6b00'; c.shadowBlur = 15;
+      c.fillRect(ox - o.w/2, o.y - o.h/2, o.w, o.h);
+      c.shadowBlur = 0;
+    });
+    // Draw player
+    c.shadowColor = '#00f5ff'; c.shadowBlur = 20;
+    c.fillStyle = '#00f5ff';
+    c.fillRect(player.x - player.w/2, player.y - player.h/2, player.w, player.h);
+    // head
+    c.beginPath(); c.arc(player.x, player.y - player.h/2 - 15, 15, 0, Math.PI*2);
+    c.fillStyle = '#ffd700'; c.fill();
+    c.shadowBlur = 0;
+    // HUD
+    c.fillStyle = 'rgba(0,0,0,0.6)'; c.fillRect(10, 10, 200, 50);
+    c.fillStyle = '#00f5ff'; c.font = `bold 14px 'Orbitron'`;
+    c.fillText(`SCORE: ${score}`, 20, 30);
+    c.fillStyle = '#ffd700'; c.font = '11px monospace';
+    c.fillText(`← → Jump:↑ | Swipe on mobile`, 20, 50);
+
+    if (gameOver) {
+      c.fillStyle = 'rgba(0,0,0,0.85)'; c.fillRect(0, 0, W, H);
+      c.fillStyle = '#ff0040'; c.font = `bold 36px 'Orbitron'`; c.textAlign = 'center';
+      c.fillText('GAME OVER', W/2, H/2-20);
+      c.fillStyle = '#00f5ff'; c.font = `18px 'Orbitron'`;
+      c.fillText(`Score: ${score}`, W/2, H/2+20);
+      c.fillStyle = '#ffffff88'; c.font = '14px monospace';
+      c.fillText('Press SPACE or tap to restart', W/2, H/2+55);
+      c.textAlign = 'left';
+    }
+    gameAnimFrame = requestAnimationFrame(loop);
+  }
+  loop();
+}
+
+// ---- FPS GAME (top-down shooter) ----
+function startFPSGame(c, canvas) {
+  let player = { x: 0, y: 0, angle: 0, hp: 100, ammo: 30 };
+  let enemies = [], bullets = [], score = 0, gameOver = false;
+  let mouse = { x: 0, y: 0 };
+  let keys = {};
+
+  function init() {
+    player.x = canvas.width/2; player.y = canvas.height/2;
+    player.angle = 0; player.hp = 100; player.ammo = 30;
+    enemies = []; bullets = []; score = 0; gameOver = false;
+    spawnEnemies();
+  }
+
+  function spawnEnemies() {
+    for (let i = 0; i < 6; i++) {
+      enemies.push({
+        x: Math.random() * canvas.width, y: Math.random() * canvas.height,
+        hp: 3, speed: 1 + Math.random() * 1.5, angle: 0,
+        color: ['#ff0040','#ff6b00','#bf00ff'][Math.floor(Math.random()*3)]
+      });
+    }
+  }
+
+  document.addEventListener('keydown', e => { keys[e.key.toLowerCase()] = true; });
+  document.addEventListener('keyup', e => { keys[e.key.toLowerCase()] = false; });
+  canvas.addEventListener('mousemove', e => {
+    const rect = canvas.getBoundingClientRect();
+    mouse.x = e.clientX - rect.left; mouse.y = e.clientY - rect.top;
+  });
+  canvas.addEventListener('click', () => {
+    if (gameOver) { init(); return; }
+    if (player.ammo > 0) {
+      const angle = Math.atan2(mouse.y - player.y, mouse.x - player.x);
+      bullets.push({ x: player.x, y: player.y, vx: Math.cos(angle)*12, vy: Math.sin(angle)*12, life: 60 });
+      player.ammo--;
+    }
+  });
+
+  init();
+
+  function loop() {
+    const W = canvas.width, H = canvas.height;
+    // BG
+    c.fillStyle = '#0a0a14'; c.fillRect(0, 0, W, H);
+    // Grid
+    c.strokeStyle = '#ffffff08'; c.lineWidth = 1;
+    for (let x = 0; x < W; x += 50) { c.beginPath(); c.moveTo(x,0); c.lineTo(x,H); c.stroke(); }
+    for (let y = 0; y < H; y += 50) { c.beginPath(); c.moveTo(0,y); c.lineTo(W,y); c.stroke(); }
+
+    if (!gameOver) {
+      const spd = 3;
+      if (keys['w'] || keys['arrowup']) player.y -= spd;
+      if (keys['s'] || keys['arrowdown']) player.y += spd;
+      if (keys['a'] || keys['arrowleft']) player.x -= spd;
+      if (keys['d'] || keys['arrowright']) player.x += spd;
+      player.x = Math.max(20, Math.min(W-20, player.x));
+      player.y = Math.max(20, Math.min(H-20, player.y));
+      player.angle = Math.atan2(mouse.y - player.y, mouse.x - player.x);
+
+      // bullets
+      bullets.forEach(b => { b.x += b.vx; b.y += b.vy; b.life--; });
+      bullets = bullets.filter(b => b.life > 0 && b.x > 0 && b.x < W && b.y > 0 && b.y < H);
+
+      // enemies
+      enemies.forEach(en => {
+        const dx = player.x - en.x, dy = player.y - en.y;
+        const dist = Math.sqrt(dx*dx+dy*dy);
+        en.x += (dx/dist)*en.speed; en.y += (dy/dist)*en.speed;
+        if (dist < 25) { player.hp -= 0.3; if (player.hp <= 0) gameOver = true; }
+        // bullet hits
+        bullets.forEach(b => {
+          if (Math.abs(b.x-en.x) < 15 && Math.abs(b.y-en.y) < 15) { b.life = 0; en.hp--; if (en.hp <= 0) { en.dead = true; score += 100; } }
+        });
+      });
+      enemies = enemies.filter(e => !e.dead);
+      if (enemies.length === 0) { spawnEnemies(); player.ammo = Math.min(player.ammo + 15, 30); }
+      if (player.ammo === 0) player.ammo = 30; // auto-reload
+    }
+
+    // draw bullets
+    bullets.forEach(b => {
+      c.beginPath(); c.arc(b.x, b.y, 4, 0, Math.PI*2);
+      c.fillStyle = '#ffd700'; c.shadowColor = '#ffd700'; c.shadowBlur = 10; c.fill(); c.shadowBlur = 0;
+    });
+    // draw enemies
+    enemies.forEach(en => {
+      c.save(); c.translate(en.x, en.y);
+      c.shadowColor = en.color; c.shadowBlur = 15;
+      c.fillStyle = en.color;
+      c.beginPath(); c.moveTo(0,-20); c.lineTo(15,20); c.lineTo(-15,20); c.closePath(); c.fill();
+      c.restore();
+    });
+    // draw player
+    c.save(); c.translate(player.x, player.y); c.rotate(player.angle);
+    c.shadowColor = '#00f5ff'; c.shadowBlur = 20;
+    c.fillStyle = '#00f5ff';
+    c.beginPath(); c.moveTo(20,0); c.lineTo(-15,12); c.lineTo(-15,-12); c.closePath(); c.fill();
+    c.fillStyle = '#0a0f1e'; c.fillRect(15, -4, 18, 8); // gun
+    c.restore();
+    // crosshair
+    c.strokeStyle = '#ff004088'; c.lineWidth = 1;
+    c.beginPath(); c.moveTo(mouse.x-15,mouse.y); c.lineTo(mouse.x+15,mouse.y); c.stroke();
+    c.beginPath(); c.moveTo(mouse.x,mouse.y-15); c.lineTo(mouse.x,mouse.y+15); c.stroke();
+    c.beginPath(); c.arc(mouse.x,mouse.y,10,0,Math.PI*2); c.stroke();
+    // HUD
+    c.fillStyle = 'rgba(0,0,0,0.7)'; c.fillRect(10,10,260,80);
+    c.fillStyle = '#ff0040'; c.font = `bold 13px 'Orbitron'`;
+    c.fillText(`HP: ${Math.max(0,player.hp.toFixed(0))}`, 20, 32);
+    c.fillStyle = '#ffd700'; c.fillText(`AMMO: ${player.ammo}`, 20, 52);
+    c.fillStyle = '#00f5ff'; c.fillText(`SCORE: ${score}`, 20, 72);
+    c.fillStyle = '#ffffff66'; c.font = '10px monospace';
+    c.fillText('WASD/Arrows to move | Click to shoot', 10, 108);
+
+    if (gameOver) {
+      c.fillStyle = 'rgba(0,0,0,0.85)'; c.fillRect(0,0,W,H);
+      c.fillStyle = '#ff0040'; c.font = `bold 36px 'Orbitron'`; c.textAlign = 'center';
+      c.fillText('ELIMINATED', W/2, H/2-20);
+      c.fillStyle = '#00f5ff'; c.font = `18px 'Orbitron'`;
+      c.fillText(`Score: ${score}`, W/2, H/2+20);
+      c.fillStyle = '#ffffff88'; c.font = '14px monospace';
+      c.fillText('Click to restart', W/2, H/2+55);
+      c.textAlign = 'left';
+    }
+    gameAnimFrame = requestAnimationFrame(loop);
+  }
+  loop();
+}
+
+// ---- BIKE GAME ----
+function startBikeGame(c, canvas) {
+  let bike = { x:0, y:0, vy:0, vx:5, score:0, angle:0, wheelRot:0 };
+  let terrain = [], obstacles = [], gameOver = false;
+  let keys = {};
+
+  function genTerrain(startX) {
+    let lastH = canvas.height * 0.65;
+    const count = 30;
+    const arr = [];
+    for (let i = 0; i < count; i++) {
+      const x = startX + i * 80;
+      const h = lastH + (Math.random()-0.5)*60;
+      arr.push({ x, y: Math.min(Math.max(h, canvas.height*0.4), canvas.height*0.8) });
+      lastH = h;
+    }
+    return arr;
+  }
+
+  function init() {
+    terrain = genTerrain(0);
+    bike.x = 150; bike.y = canvas.height*0.5;
+    bike.vy = 0; bike.vx = 5; bike.score = 0; bike.angle = 0;
+    obstacles = [];
+    gameOver = false;
+  }
+
+  document.addEventListener('keydown', e => { keys[e.code] = true; });
+  document.addEventListener('keyup', e => { keys[e.code] = false; });
+  canvas.addEventListener('click', () => { if (gameOver) init(); });
+
+  init();
+
+  function getTerrainY(worldX) {
+    const camX = bike.x - canvas.width*0.3;
+    const tx = worldX + camX;
+    for (let i = 0; i < terrain.length-1; i++) {
+      if (terrain[i].x <= tx && terrain[i+1].x > tx) {
+        const t = (tx - terrain[i].x) / (terrain[i+1].x - terrain[i].x);
+        return terrain[i].y + t*(terrain[i+1].y - terrain[i].y);
+      }
+    }
+    return canvas.height*0.65;
+  }
+
+  function loop() {
+    const W = canvas.width, H = canvas.height;
+    c.fillStyle = '#0a1428'; c.fillRect(0,0,W,H);
+    // Sky gradient
+    const sky = c.createLinearGradient(0,0,0,H*0.5);
+    sky.addColorStop(0,'#0a0f1e'); sky.addColorStop(1,'#1a2040');
+    c.fillStyle = sky; c.fillRect(0,0,W,H*0.5);
+    // Stars
+    for (let i=0;i<30;i++) { c.fillStyle='#ffffff44'; c.fillRect((i*137)%W,(i*89)%H*0.5,1,1); }
+
+    if (!gameOver) {
+      bike.vx = Math.min(bike.vx + 0.003, 10);
+      if (keys['Space'] || keys['ArrowUp']) bike.vy -= 0.8;
+      if (keys['ArrowLeft']) bike.vx = Math.max(bike.vx-0.1, 2);
+      if (keys['ArrowRight']) bike.vx = Math.min(bike.vx+0.1, 12);
+      bike.vy += 0.5;
+      bike.y += bike.vy;
+      bike.score++;
+      // extend terrain
+      const camX = bike.x - W*0.3;
+      while (terrain[terrain.length-1].x < camX + W*2) {
+        const last = terrain[terrain.length-1];
+        const newH = last.y + (Math.random()-0.5)*60;
+        terrain.push({ x: last.x+80, y: Math.min(Math.max(newH, H*0.4), H*0.8) });
+      }
+      // ground collision
+      const groundY = getTerrainY(W*0.3) - 30;
+      if (bike.y >= groundY) { bike.y = groundY; bike.vy = 0; }
+      // off screen
+      if (bike.y > H + 100) gameOver = true;
+      bike.wheelRot += bike.vx * 0.08;
+      bike.angle = Math.atan2(getTerrainY(W*0.3+1) - getTerrainY(W*0.3-1), 2) * 20;
+    }
+
+    // Draw terrain (camera follow)
+    const camX = bike.x - W*0.3;
+    c.beginPath();
+    c.moveTo(0, H);
+    terrain.forEach(p => { c.lineTo(p.x - camX, p.y); });
+    c.lineTo(W, H); c.closePath();
+    const terrGrad = c.createLinearGradient(0,H*0.5,0,H);
+    terrGrad.addColorStop(0,'#2a4010'); terrGrad.addColorStop(1,'#1a2808');
+    c.fillStyle = terrGrad; c.fill();
+    c.strokeStyle = '#39ff14'; c.lineWidth = 3; c.shadowColor = '#39ff14'; c.shadowBlur = 8;
+    c.stroke(); c.shadowBlur = 0;
+
+    // Draw bike
+    c.save();
+    c.translate(W*0.3, bike.y);
+    c.rotate(bike.angle * 0.01);
+    // body
+    c.fillStyle = '#00f5ff'; c.shadowColor = '#00f5ff'; c.shadowBlur = 15;
+    c.fillRect(-30, -25, 60, 20);
+    // rider
+    c.fillStyle = '#bf00ff';
+    c.fillRect(-10, -50, 20, 30);
+    c.beginPath(); c.arc(0,-55,12,0,Math.PI*2); c.fill();
+    // wheels
+    c.shadowColor = '#39ff14'; c.shadowBlur = 10;
+    c.strokeStyle = '#39ff14'; c.lineWidth = 4;
+    [-25, 25].forEach(wx => {
+      c.save(); c.translate(wx, 5); c.rotate(bike.wheelRot);
+      c.beginPath(); c.arc(0,0,15,0,Math.PI*2); c.stroke();
+      c.beginPath(); c.moveTo(-15,0); c.lineTo(15,0); c.moveTo(0,-15); c.lineTo(0,15); c.stroke();
+      c.restore();
+    });
+    c.restore();
+    // HUD
+    c.fillStyle = 'rgba(0,0,0,0.6)'; c.fillRect(10,10,200,55);
+    c.fillStyle = '#39ff14'; c.font = `bold 14px 'Orbitron'`;
+    c.fillText(`SCORE: ${bike.score}`, 20, 32);
+    c.fillStyle = '#00f5ff'; c.fillText(`SPEED: ${(bike.vx*10).toFixed(0)} km/h`, 20, 52);
+    c.fillStyle = '#ffffff66'; c.font = '11px monospace';
+    c.fillText('SPACE=Jump | ←→=Speed', 15, 80);
+
+    if (gameOver) {
+      c.fillStyle = 'rgba(0,0,0,0.85)'; c.fillRect(0,0,W,H);
+      c.fillStyle = '#ff0040'; c.font = `bold 36px 'Orbitron'`; c.textAlign='center';
+      c.fillText('CRASHED!', W/2, H/2-20);
+      c.fillStyle = '#00f5ff'; c.font = `18px 'Orbitron'`;
+      c.fillText(`Score: ${bike.score}`, W/2, H/2+20);
+      c.fillStyle = '#ffffff88'; c.font = '14px monospace';
+      c.fillText('Click to restart', W/2, H/2+55);
+      c.textAlign = 'left';
+    }
+    gameAnimFrame = requestAnimationFrame(loop);
+  }
+  loop();
+}
+
+// ---- SURVIVAL GAME ----
+function startSurvivalGame(c, canvas) {
+  let player = { x:0, y:0, hp:100, angle:0 };
+  let trees = [], animals = [], bullets = [], score = 0, dayTime = 0, gameOver = false;
+  let keys = {};
+  let mouse = { x:0, y:0 };
+  let camX=0, camY=0;
+  const WORLD = 1600;
+
+  function init() {
+    player.x = WORLD/2; player.y = WORLD/2; player.hp = 100;
+    trees = []; animals = []; bullets = []; score = 0; dayTime = 0; gameOver = false;
+    for (let i=0;i<40;i++) trees.push({ x:Math.random()*WORLD, y:Math.random()*WORLD, size: 15+Math.random()*20 });
+    for (let i=0;i<8;i++) animals.push({ x:Math.random()*WORLD, y:Math.random()*WORLD, hp:3, speed:1.2, type:i%2===0?'wolf':'boar' });
+  }
+
+  document.addEventListener('keydown', e => { keys[e.code]=true; });
+  document.addEventListener('keyup', e => { keys[e.code]=false; });
+  canvas.addEventListener('mousemove', e => { const r=canvas.getBoundingClientRect(); mouse.x=e.clientX-r.left; mouse.y=e.clientY-r.top; });
+  canvas.addEventListener('click', () => {
+    if (gameOver) { init(); return; }
+    const wx = camX + mouse.x, wy = camY + mouse.y;
+    const angle = Math.atan2(wy-player.y, wx-player.x);
+    bullets.push({ x:player.x, y:player.y, vx:Math.cos(angle)*10, vy:Math.sin(angle)*10, life:80 });
+    score -= 1;
+  });
+
+  init();
+
+  function loop() {
+    const W=canvas.width, H=canvas.height;
+    if (!gameOver) {
+      const spd=3;
+      if (keys['KeyW']||keys['ArrowUp']) player.y-=spd;
+      if (keys['KeyS']||keys['ArrowDown']) player.y+=spd;
+      if (keys['KeyA']||keys['ArrowLeft']) player.x-=spd;
+      if (keys['KeyD']||keys['ArrowRight']) player.x+=spd;
+      player.x=Math.max(0,Math.min(WORLD,player.x));
+      player.y=Math.max(0,Math.min(WORLD,player.y));
+      player.angle=Math.atan2(mouse.y-(H/2), mouse.x-(W/2));
+      camX=player.x-W/2; camY=player.y-H/2;
+      dayTime++; score++;
+      bullets.forEach(b=>{b.x+=b.vx;b.y+=b.vy;b.life--;});
+      bullets=bullets.filter(b=>b.life>0);
+      animals.forEach(a=>{
+        const dx=player.x-a.x, dy=player.y-a.y;
+        const dist=Math.sqrt(dx*dx+dy*dy);
+        if(dist<400){a.x+=(dx/dist)*a.speed;a.y+=(dy/dist)*a.speed;}
+        if(dist<25){player.hp-=0.2;if(player.hp<=0)gameOver=true;}
+        bullets.forEach(b=>{if(Math.abs(b.x-a.x)<15&&Math.abs(b.y-a.y)<15){b.life=0;a.hp--;if(a.hp<=0){a.dead=true;score+=200;}}});
+      });
+      animals=animals.filter(a=>!a.dead);
+      if(animals.length<4) { animals.push({x:Math.random()*WORLD,y:Math.random()*WORLD,hp:3,speed:1.5+score/5000,type:'wolf'}); }
+    }
+
+    // Sky based on daytime
+    const dayProgress = (Math.sin(dayTime/600)+1)/2;
+    const sky = c.createLinearGradient(0,0,0,H);
+    sky.addColorStop(0, dayProgress>0.5?'#1a3a6a':'#050a14');
+    sky.addColorStop(1, dayProgress>0.5?'#2a5a3a':'#0a1a0a');
+    c.fillStyle=sky; c.fillRect(0,0,W,H);
+    // Ground
+    c.fillStyle=`rgba(20,50,20,0.8)`; c.fillRect(0,0,W,H);
+    // Grid world
+    c.strokeStyle='#ffffff08'; c.lineWidth=0.5;
+    for(let gx=(-camX%50);gx<W;gx+=50){c.beginPath();c.moveTo(gx,0);c.lineTo(gx,H);c.stroke();}
+    for(let gy=(-camY%50);gy<H;gy+=50){c.beginPath();c.moveTo(0,gy);c.lineTo(W,gy);c.stroke();}
+    // Trees
+    trees.forEach(t=>{
+      const sx=t.x-camX, sy=t.y-camY;
+      if(sx<-50||sx>W+50||sy<-50||sy>H+50) return;
+      c.fillStyle='#3a2010'; c.fillRect(sx-5,sy,10,20);
+      c.beginPath(); c.arc(sx,sy,t.size,0,Math.PI*2);
+      c.fillStyle='#1a5020'; c.shadowColor='#39ff1422'; c.shadowBlur=10; c.fill(); c.shadowBlur=0;
+    });
+    // Bullets
+    bullets.forEach(b=>{
+      const sx=b.x-camX, sy=b.y-camY;
+      c.beginPath(); c.arc(sx,sy,4,0,Math.PI*2);
+      c.fillStyle='#ffd700'; c.shadowColor='#ffd700'; c.shadowBlur=8; c.fill(); c.shadowBlur=0;
+    });
+    // Animals
+    animals.forEach(a=>{
+      const sx=a.x-camX, sy=a.y-camY;
+      if(sx<-40||sx>W+40||sy<-40||sy>H+40) return;
+      c.save(); c.translate(sx,sy);
+      c.fillStyle=a.type==='wolf'?'#8a6060':'#8a7040'; c.shadowColor='#ff004066'; c.shadowBlur=10;
+      c.fillRect(-18,-10,36,20); c.beginPath(); c.arc(18,0,10,0,Math.PI*2); c.fill(); c.shadowBlur=0;
+      c.restore();
+    });
+    // Player
+    c.save(); c.translate(W/2,H/2); c.rotate(player.angle);
+    c.shadowColor='#00f5ff'; c.shadowBlur=20;
+    c.fillStyle='#00f5ff'; c.fillRect(-15,-20,30,40);
+    c.fillStyle='#0a0f1e'; c.fillRect(12,-4,20,8); // gun
+    c.fillStyle='#ffd700'; c.beginPath(); c.arc(0,-28,12,0,Math.PI*2); c.fill(); c.shadowBlur=0;
+    c.restore();
+    // Minimap
+    c.fillStyle='rgba(0,0,0,0.6)'; c.fillRect(W-150,H-150,140,140);
+    c.strokeStyle='#00f5ff33'; c.lineWidth=1; c.strokeRect(W-150,H-150,140,140);
+    animals.forEach(a=>{
+      const mx=(a.x/WORLD)*130+(W-145), my=(a.y/WORLD)*130+(H-145);
+      c.fillStyle='#ff0040'; c.fillRect(mx-2,my-2,4,4);
+    });
+    const px=(player.x/WORLD)*130+(W-145), py=(player.y/WORLD)*130+(H-145);
+    c.fillStyle='#00f5ff'; c.beginPath(); c.arc(px,py,4,0,Math.PI*2); c.fill();
+    // HUD
+    c.fillStyle='rgba(0,0,0,0.6)'; c.fillRect(10,10,220,90);
+    c.fillStyle='#ff0040'; c.font=`bold 13px 'Orbitron'`;
+    c.fillText(`HP: ${Math.max(0,player.hp.toFixed(0))}`, 20, 32);
+    c.fillStyle='#ffd700'; c.fillText(`DAY: ${(dayTime/600+1).toFixed(0)}`, 20, 52);
+    c.fillStyle='#39ff14'; c.fillText(`SCORE: ${score}`, 20, 72);
+    c.fillStyle='#ffffff66'; c.font='10px monospace'; c.fillText('WASD+Mouse|Click=Shoot', 15, 90);
+
+    if(gameOver){
+      c.fillStyle='rgba(0,0,0,0.85)'; c.fillRect(0,0,W,H);
+      c.fillStyle='#ff0040'; c.font=`bold 36px 'Orbitron'`; c.textAlign='center';
+      c.fillText('YOU DIED', W/2, H/2-20);
+      c.fillStyle='#ffd700'; c.font=`18px 'Orbitron'`;
+      c.fillText(`Score: ${score}`, W/2, H/2+20);
+      c.fillStyle='#ffffff88'; c.font='14px monospace';
+      c.fillText('Click to restart', W/2, H/2+55);
+      c.textAlign='left';
+    }
+    gameAnimFrame=requestAnimationFrame(loop);
+  }
+  loop();
+}
+
+// ---- NAVBAR ----
+window.addEventListener('scroll', () => {
+  document.getElementById('navbar').classList.toggle('scrolled', window.scrollY > 50);
+});
+function toggleMobile() {
+  document.getElementById('mobile-menu').classList.toggle('open');
+}
+
+// ---- THEME ----
+function toggleTheme() {
+  document.body.classList.toggle('light');
+  const btn = document.querySelector('.theme-toggle');
+  btn.textContent = document.body.classList.contains('light') ? '☀️' : '🌙';
+}
+
+// ---- NOTIFICATION ----
+function showNotification(msg) {
+  document.getElementById('notif-text').textContent = msg;
+  const n = document.getElementById('notification');
+  n.classList.add('show');
+  setTimeout(() => n.classList.remove('show'), 3500);
+}
+
+// ---- CONTACT FORM ----
+function handleContactForm(e) {
+  e.preventDefault();
+  showNotification('Message sent! We will reply within 24h. 🚀');
+  e.target.reset();
+}
+
+// ---- SCROLL REVEAL ----
+const observer = new IntersectionObserver(entries => {
+  entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+}, { threshold: 0.1 });
+document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
+// Close modal on Escape
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeGameModal(); });
+</script>
+</body>
+</html>
